@@ -1,0 +1,4 @@
+"0","data(meuse)"
+"0","coordinates(meuse) = ~x+y"
+"0","variogram = autofitVariogram(formula = zinc~1, input_data = meuse)"
+"0","plot(variogram)"

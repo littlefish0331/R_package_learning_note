@@ -1,0 +1,5 @@
+"0","# ...and disable the merging, note the difference between the two plots"
+"0","variogram = autofitVariogram(formula = zinc ~ soil + ffreq + dist, "
+"0","                             input_data = meuse,"
+"0","                             miscFitOptions = list(min.np.bin = 500, merge.small.bins = FALSE))"
+"0","plot(variogram)"

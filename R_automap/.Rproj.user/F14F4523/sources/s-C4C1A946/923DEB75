@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1591925953263.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "529003091",
+    "id" : "923DEB75",
+    "lastKnownWriteTime" : 1591929352,
+    "last_content_update" : 1591929352032,
+    "path" : "E:/NCHC/00_skill_tips/R_automap/code/01_note_automap_document.Rmd",
+    "project_path" : "code/01_note_automap_document.Rmd",
+    "properties" : {
+        "cursorPosition" : "60,0",
+        "last_setup_crc32" : "C4C1A946d4fa22d9",
+        "scrollLine" : "60",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

@@ -1,0 +1,28 @@
+"0","st_write(obj = crime_rate,
+         dsn = ""../data/PhillyCrimerate"", 
+         layer = ""PhillyCrimerate_sf"", 
+         driver = ""ESRI Shapefile"", update = T, delete_layer = T)
+"
+"1","Deleting layer `"
+"1","PhillyCrimerate_sf"
+"1","' failed"
+"1","
+"
+"1","Updating layer `"
+"1","PhillyCrimerate_sf"
+"1","' to data source `"
+"1","../data/PhillyCrimerate"
+"1","' using driver `"
+"1","ESRI Shapefile"
+"1","'"
+"1","
+"
+"1","Writing "
+"1","384"
+"1"," features with "
+"1","4"
+"1"," fields and geometry type "
+"1","Multi Polygon"
+"1","."
+"1","
+"

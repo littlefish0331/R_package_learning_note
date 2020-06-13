@@ -1,0 +1,3 @@
+"0","data(World, metro)"
+"0","World$color <- map_coloring(World, palette = ""Pastel2"")"
+"0","qtm(World, fill = ""color"")"

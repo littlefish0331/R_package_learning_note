@@ -1,0 +1,7 @@
+"0","ggmap(ph_basemap) +"
+"0","  geom_sf(data = philly_crimes_sf, "
+"0","          aes(fill=homic_rate_cat), "
+"0","          inherit.aes = FALSE) +"
+"0","    scale_fill_brewer(palette = ""OrRd"")"
+"2","Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+"

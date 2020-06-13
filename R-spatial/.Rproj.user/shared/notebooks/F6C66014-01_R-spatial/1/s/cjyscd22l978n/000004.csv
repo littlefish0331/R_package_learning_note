@@ -1,0 +1,1 @@
+"0","spplot(philly_crimes_sp, c(""n_homic"", ""homic_rate"")) #會放到同一尺度，可能要學習進階設定"

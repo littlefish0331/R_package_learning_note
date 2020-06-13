@@ -1,0 +1,6 @@
+"0","# if you need to load again:"
+"0","HARV <- raster(""../data/HARV_RGB_Ortho.tif"")"
+"0","crs(HARV)"
+"1","CRS arguments:
+ +proj=utm +zone=18 +datum=WGS84 +units=m +no_defs +ellps=WGS84 +towgs84=0,0,0 
+"

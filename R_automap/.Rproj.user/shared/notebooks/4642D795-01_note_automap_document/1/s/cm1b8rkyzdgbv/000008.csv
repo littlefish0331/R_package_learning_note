@@ -1,0 +1,6 @@
+"0","# Residual variogram "
+"0","# 殘差變異函數"
+"0","data(meuse)"
+"0","coordinates(meuse) = ~x+y"
+"0","variogram = autofitVariogram(formula = zinc ~ soil + ffreq + dist, input_data = meuse)"
+"0","plot(variogram)"

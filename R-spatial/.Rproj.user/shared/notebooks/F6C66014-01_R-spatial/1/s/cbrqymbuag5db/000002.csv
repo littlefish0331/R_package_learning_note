@@ -1,0 +1,33 @@
+"0","# specify the grid topology with the following parameters:"
+"0","# - the smallest coordinates for each dimension, here: 0,0"
+"0","# - cell size in each dimension, here: 1,1"
+"0","# - number of cells in each dimension, here: 5,5"
+"0","gtopo <- GridTopology(cellcentre.offset = c(0,0), "
+"0","                      cellsize = c(1,1), "
+"0","                      cells.dim = c(5,5)) # create the grid"
+"0","datafr <- data.frame(runif(25)) # make up some data"
+"0","SpGdf <- SpatialGridDataFrame(grid = gtopo, data = datafr) # create the grid data frame"
+"0","summary(SpGdf)"
+"1","Object of class SpatialGridDataFrame
+"
+"1","Coordinates:
+"
+"1","    "
+"1","  min"
+"1"," max"
+"1","
+[1,]"
+"1"," -0.5"
+"1"," 4.5"
+"1","
+[2,]"
+"1"," -0.5"
+"1"," 4.5"
+"1","
+"
+"1","Is projected: NA 
+"
+"1","proj4string : [NA]
+"
+"1","Grid attributes:
+"

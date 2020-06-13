@@ -1,0 +1,8 @@
+"0","# subset the familar way"
+"0","philly_sf_rich <- philly_sf[philly_sf$medHHinc > 60000, ]"
+"0","# or"
+"0","philly_sf_rich <- subset(philly_sf, medHHinc > 60000)"
+"0",""
+"0","# ---"
+"0","# 下面兩行一起執行"
+"0","philly_sf %>% st_geometry() %>% plot"

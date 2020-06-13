@@ -1,0 +1,38 @@
+"0","txt_doc %>%"
+"0","    read_document() %>%"
+"0","    paste(collapse = ""\n"") %>%"
+"0","    cat()"
+"1","The textreadr package aims to be a lightweight
+tool kit that handles 80% of an analyst's text
+reading in needs.
+The package handles .docx, .doc, .pdf, .html, and .txt.
+If you have another format there is likely already
+another popular R package that specializes in this
+read in task.  For example, got XML, use the xml2
+package, authored by Hadley Wickham, Jim Hester, &
+Jeroen Ooms.  Need special handling for .html?  Use
+Hadley Wickham's rvest package.  Got SQL?  Oh boy
+there's a bunch of great ways to read it into R.
+| R Package   | SQL                    |
+|-------------|------------------------|
+| ROBDC       | Microsoft SQL Server   |
+| RMySQL      | MySQL                  |
+| ROracle     | Oracle                 |
+| RJDBC       | JDBC                   |"
+"0","## The textreadr package aims to be a lightweight"
+"0","## tool kit that handles 80% of an analyst's text"
+"0","## reading in needs."
+"0","## The package handles .docx, .doc, .pdf, .html, and .txt."
+"0","## If you have another format there is likely already"
+"0","## another popular R package that specializes in this"
+"0","## read in task.  For example, got XML, use the xml2"
+"0","## package, authored by Hadley Wickham, Jim Hester, &"
+"0","## Jeroen Ooms.  Need special handling for .html?  Use"
+"0","## Hadley Wickham's rvest package.  Got SQL?  Oh boy"
+"0","## there's a bunch of great ways to read it into R."
+"0","## | R Package   | SQL                    |"
+"0","## |-------------|------------------------|"
+"0","## | ROBDC       | Microsoft SQL Server   |"
+"0","## | RMySQL      | MySQL                  |"
+"0","## | ROracle     | Oracle                 |"
+"0","## | RJDBC       | JDBC                   |"

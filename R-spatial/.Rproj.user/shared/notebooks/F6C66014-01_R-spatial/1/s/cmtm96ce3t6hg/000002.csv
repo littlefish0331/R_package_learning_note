@@ -1,0 +1,7 @@
+"0","library(RColorBrewer)"
+"0","pal <- brewer.pal(7, ""OrRd"") # we select 7 colors from the palette"
+"0","class(pal)"
+"1","[1]"
+"1"," ""character"""
+"1","
+"

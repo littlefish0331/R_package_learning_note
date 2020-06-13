@@ -1,0 +1,12 @@
+"0","## EXAMPLE 2"
+"0","as_transcript("
+"0","""34.. The New York Times reports a lot of words here."
+"0","12.. Greenwire reports a lot of words."
+"0","31.. Only three words."
+"0","2.. The Financial Times reports a lot of words."
+"0","9.. Greenwire short."
+"0","13.. The New York Times reports a lot of words again."","
+"0","col.names = c(""NO"", ""ARTICLE""), sep = ""\\.\\."")"
+"1","Table: [6 x 2]
+
+"

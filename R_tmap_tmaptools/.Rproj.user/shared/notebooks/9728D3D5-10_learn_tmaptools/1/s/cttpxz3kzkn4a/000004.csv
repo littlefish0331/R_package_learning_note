@@ -1,0 +1,7 @@
+"0","metro_Europe <- crop_shape(x = metro, "
+"0","                           y = World[World$continent == ""Europe"", ], "
+"0","                           polygon = TRUE)"
+"0","qtm(World) +"
+"0","  tm_shape(metro_Europe) +"
+"0","  tm_bubbles(""pop2010"", col=""red"", title.size=""European cities"") +"
+"0","  tm_legend(frame = TRUE)"

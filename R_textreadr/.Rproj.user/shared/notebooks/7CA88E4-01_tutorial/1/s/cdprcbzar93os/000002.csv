@@ -1,0 +1,6 @@
+"0","docx_doc <- system.file(""docs/Yasmine_Interview_Transcript.docx"", package = ""textreadr"")"
+"0","doc_doc <- system.file(""docs/Yasmine_Interview_Transcript.doc"", package = ""textreadr"")"
+"0","pdf_doc <- system.file(""docs/rl10075oralhistoryst002.pdf"", package = ""textreadr"")"
+"0","html_doc <- system.file('docs/textreadr_creed.html', package = ""textreadr"")"
+"0","txt_doc <- system.file('docs/textreadr_creed.txt', package = ""textreadr"")"
+"0","pptx_doc <- system.file('docs/Hello_World.pptx', package = ""textreadr"")"

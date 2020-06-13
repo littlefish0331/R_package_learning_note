@@ -1,0 +1,13 @@
+"0","# 有差異是因為地名相同。"
+"0",""
+"0","# ---"
+"0","# change to interactive mode"
+"0","current.mode <- tmap_mode(""view"")"
+"2","tmap mode set to interactive viewing
+"
+"0","# plot metro coordinates in red and geocode coordinates in blue"
+"0","# zoom in to see the differences"
+"0","tm_shape(five_cities) +"
+"0","  tm_dots(col = ""blue"", size = 0.1) +"
+"0","  tm_shape(five_cities_geocode) +"
+"0","  tm_dots(col = ""red"")"

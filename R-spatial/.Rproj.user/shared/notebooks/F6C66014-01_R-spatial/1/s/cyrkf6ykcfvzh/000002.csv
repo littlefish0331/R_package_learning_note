@@ -1,0 +1,6 @@
+"0","## How about:"
+"0",""
+"0","# 1. Get the census tract polygons."
+"0","# 2. Find the Philadelphia city center coordinates."
+"0","# 3. Create a buffer around the city center point."
+"0","# 4. Select all census tract polygons that intersect with the center buffer"

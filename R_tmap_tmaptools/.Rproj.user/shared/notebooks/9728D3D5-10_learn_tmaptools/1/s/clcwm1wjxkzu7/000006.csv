@@ -1,0 +1,5 @@
+"0","# read OSM raster data
+# 這個函式目前不能用惹~因為他沒有遵守一些 OpenStreetMap的規則
+# [Issue with generating maps in RStudio : / Questions and Answers / OpenStreetMap Forum](https://forum.openstreetmap.org/viewtopic.php?id=68079)
+osm_NLD <- read_osm(NLD_muni, ext = 1.1)
+"

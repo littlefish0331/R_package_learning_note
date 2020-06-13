@@ -1,0 +1,1 @@
+"0","plot(st_geometry(philly_sel_sf), add = T, col = ""red"")"

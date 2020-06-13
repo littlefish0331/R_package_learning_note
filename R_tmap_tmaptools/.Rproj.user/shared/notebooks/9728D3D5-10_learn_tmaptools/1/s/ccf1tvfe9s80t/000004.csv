@@ -1,0 +1,2 @@
+"0","current.mode <- tmap_mode(""view"")"
+"0","qtm(bb_poly(NLD_muni))"

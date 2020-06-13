@@ -1,0 +1,7 @@
+"0","# 擬合的比較好"
+"0","# Settings the minimum number of pairs per bin quite high"
+"0","# to see the effect of merging bins"
+"0","variogram = autofitVariogram(formula = zinc ~ soil + ffreq + dist, "
+"0","                             input_data = meuse, "
+"0","                             miscFitOptions = list(min.np.bin = 500))"
+"0","plot(variogram)"

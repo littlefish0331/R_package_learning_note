@@ -1,0 +1,9 @@
+"0","library(tmap)"
+"0","tmap_mode(mode = ""plot"")"
+"2","tmap mode set to plotting
+"
+"0","# tmap_mode(mode = ""view"")"
+"0","tm_shape(philly_crimes_sf) + "
+"0","  tm_polygons(col = ""homic_rate"", "
+"0","              style = ""quantile"", "
+"0","              title = ""Philadelphia \nhomicide density \nper sqKm"")"

@@ -1,0 +1,2 @@
+"0","ggplot(philly_crimes_sf) + "
+"0","  geom_sf(aes(fill=homic_rate))"

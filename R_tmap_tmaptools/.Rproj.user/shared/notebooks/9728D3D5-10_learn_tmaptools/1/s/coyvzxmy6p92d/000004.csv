@@ -1,0 +1,2 @@
+"0","tm_shape(NLD_muni) + "
+"0","  tm_bubbles(size=""area"", title.size = expression(""Area in "" * km^2))"

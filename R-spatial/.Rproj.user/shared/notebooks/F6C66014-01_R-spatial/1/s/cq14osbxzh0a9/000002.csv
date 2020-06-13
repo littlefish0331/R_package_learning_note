@@ -1,0 +1,3 @@
+"0","plot(philly_crimes_sf[, ""homic_rate""], "
+"0","     main = ""Philadelphia homicide density per square km"", "
+"0","     breaks = ""quantile"")"

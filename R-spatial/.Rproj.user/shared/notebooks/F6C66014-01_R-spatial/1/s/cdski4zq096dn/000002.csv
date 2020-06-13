@@ -1,0 +1,6 @@
+"0","## write out"
+"0","writeOGR(obj = philly_homicides_sp_aea, "
+"0","         dsn = ""../data/PhillyHomicides_aea"","
+"0","         layer = ""PhillyHomicides_aea"", "
+"0","         driver = ""ESRI Shapefile"", "
+"0","         overwrite_layer = T)"

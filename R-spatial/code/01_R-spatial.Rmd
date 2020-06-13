@@ -1,0 +1,1257 @@
+---
+title: "01_R-spatial"
+author: "Steve, Yu"
+date: "2020/5/25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list = ls()); invisible(gc())
+library(knitr)
+library(dplyr)
+library(sf)
+library(sp)
+library(rgdal)
+library(raster)
+library(rgeos)
+library(classInt)
+library(RColorBrewer)
+library(ggplot2)
+library(ggmap)
+library(tmap)
+library(leaflet)
+opts_chunk$set(echo = TRUE)
+```
+
+# Chapter 1
+
+## section 1.1
+
+page 07
+
+### section 1.1.1
+
+page 08
+
+page 09
+
+```{r}
+ln1 <- matrix(runif(6), ncol=2) %>% Line()
+str(ln1); ln1
+```
+
+```{r}
+ln2 <- Line(matrix(runif(6), ncol=2))
+```
+
+```{r}
+lns1 <- Lines(list(ln1), ID = c("hwy1"))
+lns2 <- Lines(list(ln2), ID = c("hwy2"))
+
+# ---
+# lns1: just a geometric objects
+lns1 %>% class()
+lns1 %>% str()
+```
+
+```{r}
+sp_lns <- SpatialLines(list(lns1, lns2))
+sp_lns %>% str()
+
+# ---
+# plot successfully only if it is Spatial* class
+# plot(sp_lns)
+
+# ---
+sp_lns@bbox # min and max in both x and y
+ln1@coords[,1] %>% range
+ln1@coords[,2] %>% range
+ln2@coords[,1] %>% range
+ln2@coords[,2] %>% range
+```
+
+page 10
+
+```{r}
+dfr <- data.frame(id = c("hwy1", "hwy2"), # note how we use the same IDs from above!
+cars_per_hour = c(78, 22))
+sp_lns_dfr <- SpatialLinesDataFrame(sp_lns, dfr, match.ID = "id")
+sp_lns_dfr %>% str()
+```
+
+### section 1.1.2
+
+page 10
+
+page 11
+
+page 12
+
+```{r}
+lnstr_sfg1 <- st_linestring(matrix(runif(6), ncol = 2))
+lnstr_sfg2 <- st_linestring(matrix(runif(6), ncol = 2))
+
+# ---
+# see the class, structure and plot
+lnstr_sfg1 %>% class()
+lnstr_sfg1 %>% str
+lnstr_sfg1 %>% plot
+lnstr_sfg1
+```
+
+```{r}
+lnstr_sfc <- st_sfc(lnstr_sfg1, lnstr_sfg2) # just one feature here
+
+# ---
+# see the class, structure and plot
+lnstr_sfc %>% class
+lnstr_sfc %>% str
+lnstr_sfc %>% plot
+lnstr_sfc
+```
+
+```{r}
+lnstr_sf <- st_sf(dfr , lnstr_sfc)
+
+# ---
+# see the class, structure and plot
+lnstr_sf %>% class
+lnstr_sf %>% str
+lnstr_sf %>% plot
+lnstr_sf
+```
+
+page 13
+
+```{r}
+methods(class="sf")
+```
+
+```{r}
+library(data.table)
+# Challenge
+# [R Spatial Cheatsheet](https://www.maths.lancs.ac.uk/~rowlings/Teaching/UseR2012/cheatsheet.html)
+```
+
+```{r}
+# ---
+# sp
+# points from scratch
+tmp_df <- data.table(t1 = LETTERS[1:5])
+set.seed(9527)
+pt_coords <- runif(10) %>% matrix(., ncol = 2)
+pt_sp = SpatialPoints(pt_coords)
+
+# make spatial data frame
+spdf = SpatialPointsDataFrame(pt_coords, tmp_df)
+spdf = SpatialPointsDataFrame(pt_sp, tmp_df)
+
+# promote data frame to spatial
+x <- runif(5); y <- runif(5)
+coordinates(tmp_df) = cbind(x, y)
+
+# back to data
+tmp_df %>% data.frame() #cannot use data.table()
+tmp_df$t1
+tmp_df %>% bbox
+tmp_df %>% str
+
+# manipulate data.frame
+tmp_df[tmp_df$t1 %in% c("B", "D", "E"), ]
+```
+
+```{r}
+# ---
+# sf
+tmp_df <- data.table(t1 = LETTERS[1:2])
+set.seed(9527)
+pt1_coords <- runif(10) %>% matrix(., ncol = 2)
+pt2_coords <- runif(10) %>% matrix(., ncol = 2)
+
+# points from scratch
+st_point(x = c(1,2))
+st_multipoint(x = pt1_coords)
+st_multipoint(x = pt1_coords, dim = "XY")
+ptstr_sfg1 <- st_multipoint(x = pt1_coords)
+ptstr_sfg2 <- st_multipoint(x = pt2_coords)
+ptstr_sfg1 %>% class
+# ptstr_sfg1 %>% str
+
+# combine all single feature objects
+ptstr_sfc <- st_sfc(ptstr_sfg1, ptstr_sfg2)
+# ptstr_sfc %>% class
+# ptstr_sfc %>% str
+
+# add atribute
+ptstr_sf <- st_sf(tmp_df, ptstr_sfc)
+ptstr_sf %>% class
+# ptstr_sf %>% str
+# ptstr_sf
+
+# manipulate data.fram
+# 可以用 dplyr
+# ptstr_sf[ptstr_sf$t1=="A", ]
+ptstr_sf %>% filter(t1=="A")
+st_bbox(ptstr_sf)
+```
+
+## section 1.2
+
+## section 1.2.1
+
+page 14
+
+```{r}
+philly_homicides_df <- read.csv("../data/philly_homicides.csv")
+
+# ---
+philly_homicides_df %>% class()
+philly_homicides_df %>% str()
+```
+
+```{r}
+philly_homicides_sf <- st_as_sf(philly_homicides_df, coords = c("POINT_X", "POINT_Y"))
+
+# ---
+philly_homicides_sf %>% class()
+philly_homicides_sf %>% str()
+philly_homicides_sf$geometry
+```
+
+page 15
+
+```{r}
+st_crs(philly_homicides_sf)
+```
+
+```{r}
+st_crs(philly_homicides_sf) <- 4326 # we can use EPSG as numeric here
+st_crs(philly_homicides_sf)
+```
+
+```{r}
+# st_write(philly_homicides_sf, "../data/PhillyHomicides", driver = "ESRI Shapefile")
+
+# ---
+# to force the save:
+st_write(obj = philly_homicides_sf, 
+         dsn = "../data/PhillyHomicides", 
+         driver = "ESRI Shapefile", 
+         delete_layer = TRUE)
+```
+
+### section 1.2.2
+
+page 15
+
+```{r}
+philly_homicides_df %>% class()
+
+# ---
+# original class is dataframe
+# after setting coordinate, its class become sp
+coordinates(philly_homicides_df) <- c("POINT_X", "POINT_Y")
+philly_homicides_df %>% class()
+```
+
+page 16
+
+```{r}
+is.projected(philly_homicides_df) # see if a projection is defined
+```
+
+```{r}
+proj4string(philly_homicides_df) <- CRS("+init=epsg:4326") # this is WGS84
+is.projected(philly_homicides_df) # voila! hm. wait a minute..
+```
+
+```{r}
+# actually, projection is set successfully.
+philly_homicides_df %>% str
+```
+
+```{r}
+# to save out using writeOGR from rgdal
+library(rgdal)
+
+# note that we need to save the philly_homicides_df, which we converted to sp object!
+# writeOGR(obj = philly_homicides_df, 
+#          dsn = "../data/PhillyHomicides", 
+#          layer = "PhillyHomicides", driver = "ESRI Shapefile")
+
+# to force save:
+writeOGR(obj = philly_homicides_df, 
+         dsn = "../data/PhillyHomicides", 
+         layer = "PhillyHomicides", 
+         driver = "ESRI Shapefile", 
+         overwrite_layer = TRUE)
+```
+
+## section 1.3
+
+### section 1.3.1
+
+page 16
+
+```{r}
+# read in
+philly_sf <- st_read("../data/Philly")
+```
+
+```{r}
+philly_sf %>% str
+```
+
+page 17
+
+```{r}
+plot(philly_sf)
+```
+
+```{r}
+philly_sf %>% st_geometry() %>% plot
+```
+
+page 18
+
+```{r}
+# subset the familar way
+philly_sf_rich <- philly_sf[philly_sf$medHHinc > 60000, ]
+# or
+philly_sf_rich <- subset(philly_sf, medHHinc > 60000)
+
+# ---
+# run the folloeing codes at same time
+philly_sf %>% st_geometry() %>% plot
+plot(st_geometry(philly_sf_rich), add = T, col = "red")
+```
+
+```{r}
+philly_sf %>% st_geometry() %>% plot
+philly_sf %>%
+  filter(medHHinc > 60000) %>%
+  st_geometry() %>%
+  plot(col = "red", add = T)
+```
+
+### section 1.3.2
+
+page 19
+
+```{r}
+library(rgdal)
+philly_sp <- readOGR(dsn = "../data/Philly", layer = "PhillyTotalPopHHinc")
+```
+
+```{r}
+class(philly_sp)
+```
+
+```{r}
+plot(philly_sp)
+philly_sp_rich <- subset(philly_sp, medHHinc > 60000)
+plot(philly_sp_rich, add = T, col = "red")
+```
+
+## section 1.4
+
+page 20
+
+```{r}
+library(raster)
+# specify the RasterLayer with the following parameters:
+# - minimum x coordinate (left border)
+# - minimum y coordinate (bottom border)
+# - maximum x coordinate (right border)
+# - maximum y coordinate (top border)
+# - resolution (cell size) in each dimension
+r <- raster(xmn=-0.5, ymn=-0.5, xmx=4.5, ymx=4.5, resolution = c(1,1))
+r
+```
+
+```{r}
+class(r)
+```
+
+```{r}
+r <- setValues(x = r, values = runif(25))
+class(r)
+r
+r$layer@data
+```
+
+page 21
+
+```{r}
+coordinates(r) #coordinate會是grid的中心~
+plot(r); points(coordinates(r), pch = 3)
+```
+
+```{r}
+class(volcano)
+volcano %>% dim
+```
+
+```{r}
+volcano.r <- raster(x = volcano)
+class(volcano.r)
+
+# ---
+# plot
+plot(volcano.r)
+```
+
+```{r}
+library(raster)
+HARV <- raster("../data/HARV_RGB_Ortho.tif")
+```
+
+```{r}
+# 注意 band: 1  (of  3  bands)
+HARV
+```
+
+page 22
+
+```{r}
+plot(HARV)
+```
+
+page 22
+
+```{r}
+crs(HARV)
+```
+
+```{r}
+methods(class = class(HARV))
+```
+
+page 23
+
+```{r}
+hist(HARV)
+```
+
+```{r}
+ncell(HARV)
+```
+
+```{r}
+hist(HARV, maxpixels = ncell(HARV))
+```
+
+page 24
+
+```{r}
+# explore raster metadata before loading them
+GDALinfo("../data/HARV_RGB_Ortho.tif")
+```
+
+```{r}
+nlayers(HARV) # 1，因為指讀取一個band
+nbands(HARV) # 應該是用這個看有多少個 band 才對。
+```
+
+```{r}
+HARV_Band2 <- raster("../data/HARV_RGB_Ortho.tif", band = 2)
+plot(HARV_Band2)
+```
+
+page 25
+
+```{r}
+HARV_stack <- stack("../data/HARV_RGB_Ortho.tif")
+```
+
+```{r}
+# how many layers?
+nlayers(HARV_stack) #3
+
+# nbands(HARV_stack) #會是error。not implemented for RasterStack objects
+```
+
+```{r}
+HARV_stack
+```
+
+```{r}
+plot(HARV_stack)
+```
+
+```{r}
+plotRGB(HARV_stack)
+```
+
+### section 1.4.1
+
+page 27
+
+```{r}
+object.size(HARV_stack)
+```
+
+```{r}
+HARV_brick <- brick(HARV_stack)
+object.size(HARV_brick)
+```
+
+page 28
+
+```{r}
+# specify the grid topology with the following parameters:
+# - the smallest coordinates for each dimension, here: 0,0
+# - cell size in each dimension, here: 1,1
+# - number of cells in each dimension, here: 5,5
+gtopo <- GridTopology(cellcentre.offset = c(0,0), 
+                      cellsize = c(1,1), 
+                      cells.dim = c(5,5)) # create the grid
+datafr <- data.frame(runif(25)) # make up some data
+SpGdf <- SpatialGridDataFrame(grid = gtopo, data = datafr) # create the grid data frame
+summary(SpGdf)
+```
+
+```{r}
+coordinates(SpGdf) #coordinate會是grid的中心~
+plot(SpGdf); points(coordinates(SpGdf), pch = 3)
+```
+
+# chapter 2
+
+## section 2.1
+
+page 29
+
+```{r}
+ph_edu <- read.csv("../data/PhillyEducation.csv")
+names(ph_edu)
+```
+
+### section 2.1.1
+
+```{r}
+## sf ##
+# if you need to read in again:
+philly_sf <- st_read("../data/Philly")
+names(philly_sf)
+```
+
+page 30
+
+```{r}
+philly_sf_merged <- merge(x = philly_sf, y = ph_edu, 
+                          by.x = "GEOID10", by.y = "GEOID")
+names(philly_sf_merged)
+```
+
+### section 2.1.2
+
+```{r}
+## sp ##
+# if you need to read in again:
+philly_sp <- readOGR(dsn = "../data/Philly", layer = "PhillyTotalPopHHinc")
+
+# this is sp::merge()
+philly_sp_merged <- sp::merge(philly_sp, ph_edu, by.x = "GEOID10", by.y = "GEOID")
+names(philly_sp_merged) # no geometry column here
+```
+
+## section 2.2
+
+page 30
+
+```{r}
+## How about:
+
+# 1. Get the census tract polygons.
+# 2. Find the Philadelphia city center coordinates.
+# 3. Create a buffer around the city center point.
+# 4. Select all census tract polygons that intersect with the center buffer
+```
+
+### section 2.2.1
+
+page 31
+
+```{r}
+# if you need to read in again:
+philly_sf <- st_read(dsn = "../data/Philly", quiet = T)
+# philly_sf %>% class
+# philly_sf %>% str
+
+# ---
+# make a simple feature point with CRS
+philly_ctr_sfc <- st_point(c(1750160, 467499.9)) %>% st_sfc(., crs = 102003)
+# philly_ctr_sfc %>% class
+# philly_ctr_sfc %>% str
+philly_ctr_sfc
+
+# ---
+# plot(philly_ctr_sfc)
+```
+
+```{r}
+# st_crs(philly_ctr_sfc)$units # unit is meter
+philly_buf_sf <- st_buffer(philly_ctr_sfc, dist = 2000) # unit is meter
+philly_buf_sf
+
+# ---
+# plot(philly_buf_sf)
+```
+
+```{r}
+# ---
+# check projection
+philly_buf_sf %>% st_crs()
+philly_sf %>% st_crs()
+st_crs(philly_buf_sf) == st_crs(philly_sf)
+
+# ---
+philly_buf_intersects <- st_intersects(x = philly_buf_sf, y = philly_sf)
+```
+
+```{r}
+# if above code fail, check those spatial objects coordinates
+st_crs(philly_sf)
+st_crs(philly_buf_sf)
+```
+
+page 32
+
+```{r}
+st_crs(philly_sf) <- 102003
+
+# ---
+st_crs(philly_sf)
+st_crs(philly_buf_sf)
+```
+
+```{r}
+philly_buf_intersects <- st_intersects(philly_buf_sf, philly_sf)
+philly_buf_intersects %>% class()
+```
+
+```{r}
+philly_buf_intersects
+philly_buf_intersects[[1]]
+```
+
+```{r}
+philly_sel_sf <- philly_sf[philly_buf_intersects[[1]], ]
+
+# plot
+plot(st_geometry(philly_sf), 
+     border = "#aaaaaa", #灰色
+     main = "Census tracts that fall within 2km of city center")
+plot(st_geometry(philly_sel_sf), add = T, col = "red")
+plot(st_geometry(philly_buf_sf), add = T, lwd = 2, lty = 2,
+     col = scales::alpha("green", 0.5))
+
+# ---
+# if sf - data.frame object has lots of attributes, 
+# you can use st_geometry() to extract polygon boundary only.
+# plot(st_geometry(philly_sf), 
+#      border = "#aaaaaa", #灰色
+#      main = "Census tracts that fall within 2km of city center")
+# plot(st_geometry(philly_sel_sf), add = T, col = "red")
+# plot(philly_buf_sf, add = T, lwd = 2, lty = 2, col = scales::alpha("green", 0.5))
+```
+
+### section 2.2.2
+
+page 32  
+page 33
+
+```{r}
+library(rgeos)
+# if you need to read it in again
+# verbose: report progress
+philly_sp <- readOGR(dsn = "../data/Philly", 
+                     layer = "PhillyTotalPopHHinc", 
+                     verbose = T)
+```
+
+```{r}
+coords <- data.frame(x = 1750160, y = 467499.9) # set the coordinates
+prj <- CRS("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=37.5 +lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m +no_defs") # the projection string for AEA
+philly_ctr_sp <- SpatialPoints(coords, proj4string = prj) # create the spatialPoints
+# philly_ctr_sp %>% str
+# philly_ctr_sp %>% plot()
+```
+
+```{r}
+# prj #敘述中有描述單位。+unit=m
+philly_buf_sp <- gBuffer(spgeom = philly_ctr_sp, width=2000) # create buffer around center
+# 單位為meter
+
+# ---
+# philly_buf_sp %>% plot()
+# philly_buf_sp %>% str
+```
+
+```{r}
+philly_buf_intersects <-  gIntersects(spgeom1 = philly_buf_sp, 
+                                      spgeom2 = philly_sp, 
+                                      byid=TRUE) 
+
+# what kind of object is this?
+class(philly_buf_intersects)# matrix, TRUE or FALSE
+# philly_buf_intersects %>% dim #384 1
+
+# subset
+philly_sel_sp <- philly_sp[as.vector(philly_buf_intersects),]
+
+# plot
+plot (philly_sp, border = "#aaaaaa")
+plot (philly_sel_sp, add = T, col = "red") 
+plot (philly_buf_sp, add = T, lwd = 2, col = scales::alpha("green", 0.5))
+```
+
+## section 2.3
+
+page 33  
+page 34
+
+```{r}
+#If you need to read the file back in:
+philly_homicides_sf <- st_read(dsn = "../data/PhillyHomicides")
+st_crs(philly_homicides_sf)
+st_crs(philly_sf)
+```
+
+```{r}
+st_crs(philly_sf)
+philly_homicides_sf_aea <- st_transform(x = philly_homicides_sf, 
+                                        crs = st_crs(philly_sf))
+```
+
+```{r}
+st_crs(philly_homicides_sf_aea)
+st_crs(philly_sf)
+```
+
+```{r}
+st_coordinates(philly_homicides_sf) %>% range()
+st_coordinates(philly_homicides_sf_aea) %>% range()
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(st_geometry(philly_homicides_sf), axes=TRUE, main = "before transform - latlon")
+plot(st_geometry(philly_homicides_sf_aea), axes=TRUE, main = "after transform - aea")
+```
+
+page 35
+
+```{r}
+st_write(obj = philly_homicides_sf_aea, 
+         dsn = "../data/PhillyHomicides_aea", 
+         driver = "ESRI Shapefile", 
+         delete_layer = T)
+```
+
+### section 2.3.1
+
+```{r}
+philly_homicides_sp <- readOGR(dsn = "../data/PhillyHomicides", 
+                               layer = "PhillyHomicides")
+```
+
+```{r}
+proj4string(philly_sp)
+proj4string(philly_homicides_sp)
+```
+
+```{r}
+philly_homicides_sp_aea <- spTransform(philly_homicides_sp, CRS(proj4string(philly_sp)))
+```
+
+```{r}
+## check the coordinates ##
+range(coordinates(philly_homicides_sp_aea))
+range(coordinates(philly_homicides_sp))
+```
+
+```{r}
+## write out
+writeOGR(obj = philly_homicides_sp_aea, 
+         dsn = "../data/PhillyHomicides_aea",
+         layer = "PhillyHomicides_aea", 
+         driver = "ESRI Shapefile", 
+         overwrite_layer = T)
+```
+
+### section 2.3.2
+
+page 35
+
+```{r}
+# if you need to load again:
+HARV <- raster("../data/HARV_RGB_Ortho.tif")
+crs(HARV)
+```
+
+page 36
+
+```{r}
+HARV_WGS84 <- projectRaster(HARV, crs = "+init=epsg:4326")
+```
+
+```{r}
+extent(HARV)
+extent(HARV_WGS84)
+```
+
+```{r}
+ncell(HARV)
+ncell(HARV_WGS84)
+```
+
+```{r}
+plot(HARV, main = "before transform - UTM")
+```
+
+```{r}
+plot(HARV_WGS84, main = "after transform - WGS84")
+```
+
+## section 2.4
+
+### section 2.4.1
+
+page 37
+
+```{r}
+# ---
+# Geometry polygon
+# philly_sf <- st_read(dsn = "../data/Philly", quiet = T)
+
+# ---
+# Homicide data and latlon(Geometry point)
+# philly_homicides_sf <- st_read(dsn = "../data/PhillyHomicides")
+# philly_homicides_sf_aea <- st_transform(x = philly_homicides_sf,
+#                                         crs = st_crs(philly_sf))
+
+```
+
+```{r}
+# actually, philly_sf has attribute - Shape_area
+# it almost equal to tract_area. 
+# unit: sqare meter
+
+# ---
+# philly_sf %>% head()
+# philly_sf %>% dim() #384 18
+
+# ---
+# st_crs(philly_sf) #unit=m
+philly_sf %>% 
+  mutate(tract_area = st_area(geometry)) %>% 
+  head()
+```
+
+```{r}
+philly_homicides_sf_aea %>% head
+# philly_homicides_sf_aea %>% dim # 3883 9
+```
+
+```{r}
+# dimension: 3886 27(9+18-1+1)
+philly_sf %>% 
+  mutate(tract_area = st_area(geometry)) %>% 
+  st_join(x = ., y = philly_homicides_sf_aea) %>% 
+  head()
+```
+
+page 38
+
+```{r}
+# 原始版本的 unique 會出錯，因為 tract_area 計算出來的面積大小可能有誤差。
+# 雖然結果顯示 homic_rate 為[1/m^2]，但實際上我們已經轉換為[1/km^2]
+crime_rate <- philly_sf %>% 
+  mutate(tract_area = st_area(geometry)) %>%
+  st_join(philly_homicides_sf_aea) %>%
+  group_by(GEOID10) %>% 
+  summarize(n_homic = n(),
+            tract_area = tract_area[1],
+            homic_rate = n_homic/tract_area * 1e6) 
+```
+
+```{r}
+plot(crime_rate)
+plot(crime_rate[, "homic_rate"], main = "homic_rate[1/km^2]")
+```
+
+```{r}
+# 會爆出一堆eror
+# 這些error在GDAL驅動程序中，因此無法通過sf進行更改
+# 主要是數值轉換上的問題，主因是數值的位數太大了
+# - [st_write: values not successfully written · Issue #69 · HeritageNetwork/Regional_SDM](https://github.com/HeritageNetwork/Regional_SDM/issues/69)
+# - [Misleading warning · Issue #306 · r-spatial/sf](https://github.com/r-spatial/sf/issues/306)
+# - [#6803 (ogr2ogr complains possibly due to too larger number) – GDAL](https://trac.osgeo.org/gdal/ticket/6803)
+
+# ---
+# 總之，這個錯誤無法解決，除非改變數值大小
+# 或許之後逐漸淘汰 shpafile 的作法(?)
+# 換成新的資料交換格式是 Geojson，不知道會不會比較好用XD
+
+# ---
+# as.character() also fail, because it still store as numeric when saving
+# divided by 1e4, transfer to float, seems can slove the problem.
+crime_rate$GEOID10 <- crime_rate$GEOID10 / 10000
+st_write(obj = crime_rate,
+         dsn = "../data/PhillyCrimerate", 
+         layer = "PhillyCrimerate_sf", 
+         driver = "ESRI Shapefile", update = T, delete_layer = T)
+```
+
+### section 2.4.2
+
+page 39
+
+```{r}
+# just count length, so take any attribute is fine.
+philly_homicides_sp_aea %>% names
+
+# ---
+ph_hom_count_sp <- aggregate(x = philly_homicides_sp_aea["OBJ_ID"], 
+                             by = philly_sp, FUN = length)
+
+# make sure we understand this error message:
+# it's not error. it just calculate more attribute than we need.
+# aggregate(x = philly_homicides_sp_aea, by = philly_sp, FUN = length)
+```
+
+```{r}
+class(ph_hom_count_sp)
+names(ph_hom_count_sp)
+head(ph_hom_count_sp)
+```
+
+```{r}
+library(rgeos)
+gArea(ph_hom_count_sp, byid = T) %>% head()
+
+# we multiply by by 1000000 to get sq km.
+ph_hom_count_sp$homic_dens <- 1e6 * (ph_hom_count_sp$OBJ_ID/gArea(ph_hom_count_sp, 
+                                                                  byid = TRUE))
+
+hist(ph_hom_count_sp$homic_dens)
+```
+
+```{r}
+plot(ph_hom_count_sp)
+plot(ph_hom_count_sp[which(ph_hom_count_sp$homic_dens>20),], col = "red", add = T)
+```
+
+```{r}
+ph_hom_count_sp %>% head
+writeOGR(obj = ph_hom_count_sp, 
+         dsn = "../data/PhillyCrimerate", 
+         layer = "PhillyCrimerate_sp", 
+         driver = "ESRI Shapefile", overwrite_layer = T)
+```
+
+# chapter 3
+
+## section 3.1
+
+page 41
+
+```{r}
+philly_crimes_sf <-  st_read(dsn = "../data/PhillyCrimerate", 
+                             layer = "PhillyCrimerate_sf",
+                             quiet = TRUE)
+plot(philly_crimes_sf)
+```
+
+page 42
+
+```{r}
+# because this is a numeric vector!
+plot(philly_crimes_sf$homic_rate)
+```
+
+page 43
+
+```{r}
+philly_crimes_sf[, "homic_rate"] %>% plot()
+philly_crimes_sf$homic_rate %>% hist()
+```
+
+page 44
+
+```{r}
+plot(philly_crimes_sf[, "homic_rate"], 
+     main = "Philadelphia homicide density per square km", 
+     breaks = "quantile")
+```
+
+```{r}
+library(RColorBrewer)
+pal <- brewer.pal(7, "OrRd") # we select 7 colors from the palette
+class(pal)
+```
+
+```{r}
+plot(philly_crimes_sf["homic_rate"], 
+     main = "Philadelphia homicide density per square km", 
+     breaks = "quantile", nbreaks = 7,
+     pal = pal)
+```
+
+## section 3.2
+
+page 45
+
+```{r}
+philly_crimes_sp <- readOGR(dsn = "../data/PhillyCrimerate", 
+                            layer = "PhillyCrimerate_sf", 
+                            verbose = FALSE) 
+names(philly_crimes_sp)
+```
+
+```{r}
+# speed of spplot is a little bit slow,
+# and it will put values of all attribute in same scale.
+
+# ---
+# spplot(philly_crimes_sp) 
+spplot(philly_crimes_sp, "homic_rate")
+spplot(philly_crimes_sp, c("n_homic", "homic_rate")) #會放到同一尺度，可能要學習進階設定
+```
+
+page 46
+
+```{r}
+library(classInt)
+
+# quantile breaks
+breaks_qt <- classIntervals(philly_crimes_sp$homic_rate, n = 7, style = "quantile")
+br <- breaks_qt$brks 
+
+# in order to cover lower and upper boundary, 
+# need to expand a little bit for the lowest and largest.
+offs <- 0.0000001 
+br[1] <- br[1] - offs 
+br[length(br)] <- br[length(br)] + offs 
+
+# categoreis for choropleth map
+philly_crimes_sp$homic_rate_bracket <- cut(philly_crimes_sp$homic_rate, br)
+
+# plot
+spplot(philly_crimes_sp, "homic_rate_bracket", 
+       col.regions = pal, 
+       main = "Philadelphia homicide density per square km")
+```
+
+## section 3.3
+
+page 47
+
+```{r}
+# library(ggplot2)
+# ggplot(data = my_data_frame, 
+#        mapping = aes(x = name_of_column_with_x_value, 
+#                      y = name_of_column_with_y_value)) +
+#   geom_point()
+
+# ---
+# ggplot(my_data_frame, 
+#        aes(name_of_column_with_x_value, 
+#            name_of_column_with_y_value)) +
+#   geom_point()
+```
+
+page 48
+
+```{r}
+ggplot(philly_crimes_sf) + 
+  geom_sf(aes(fill=homic_rate))
+```
+
+```{r}
+library(classInt)
+
+# get quantile breaks. Add .00001 offset to catch the lowest value
+breaks_qt <- classIntervals(var = c(min(philly_crimes_sf$homic_rate) - .00001,
+                                    philly_crimes_sf$homic_rate),
+                            n = 7, 
+                            style = "quantile")
+breaks_qt
+# breaks_qt$brks #show lower boindary of each interval
+```
+
+page 49
+
+```{r}
+philly_crimes_sf <- mutate(philly_crimes_sf, 
+                           homic_rate_cat = cut(homic_rate, breaks_qt$brks)) 
+
+ggplot(philly_crimes_sf) + 
+  geom_sf(aes(fill=homic_rate_cat)) +
+  scale_fill_brewer(palette = "OrRd") 
+```
+
+## section 3.4
+
+page 49
+
+```{r}
+library(ggmap)
+# tmaptools::geocode_OSM("Philadelphia")
+# Philadelphia Lon is -75.16522 and Lat 39.95258 
+# -75.28030  39.86700 -74.95583  40.13796 
+
+ph_basemap <- get_stamenmap(bbox  = c(left = -75.28030, bottom = 39.86700, 
+                                      right = -74.95583, top = 40.13796), 
+                            zoom = 11, 
+                            maptype = 'terrain-background', 
+                            source = 'stamen')
+
+ggmap(ph_basemap)
+```
+
+page 50
+
+```{r}
+ggmap(ph_basemap) +
+  geom_sf(data = philly_crimes_sf, 
+          aes(fill=homic_rate_cat), 
+          inherit.aes = FALSE) +
+    scale_fill_brewer(palette = "OrRd")
+```
+
+page 51
+
+```{r}
+# philly_crimes_sf's CRS is different with tile's CRS
+# but it still can plot!
+st_crs(philly_crimes_sf)
+# philly_crimes_sf %>% plot()
+```
+
+```{r}
+ggmap(ph_basemap) +
+  geom_sf(data = philly_crimes_sf, 
+          aes(fill = homic_rate_cat), 
+          inherit.aes = FALSE) +
+  scale_fill_brewer(palette = "OrRd") +
+  coord_sf(crs = st_crs(4326))
+```
+
+## section 3.5
+
+page 52
+
+```{r}
+library(tmap)
+tmap_mode(mode = "plot")
+# tmap_mode(mode = "view")
+tm_shape(philly_crimes_sf) + 
+  tm_polygons(col = "homic_rate", 
+              style = "quantile", 
+              title = "Philadelphia \nhomicide density \nper sqKm")
+```
+
+```{r}
+tmap_mode("view")
+tmap_last()
+```
+
+## section 3.6
+
+page 53
+
+```{r}
+library(leaflet) 
+
+# reproject
+philly_WGS84 <- st_transform(philly_crimes_sf, crs = 4326)
+
+leaflet(philly_WGS84) %>%
+  addPolygons()
+```
+
+```{r}
+pal_fun <- colorQuantile(palette = "YlOrRd", domain = NULL, n = 5)
+
+p_popup <- paste0("<strong>Homicide Density: </strong>", philly_WGS84$homic_rate)
+
+leaflet(philly_WGS84) %>%
+  addPolygons(
+    stroke = FALSE, # remove polygon borders
+    fillColor = ~pal_fun(homic_rate), # set fill color with function from above and value
+    fillOpacity = 0.8, smoothFactor = 0.5, # make it nicer
+    popup = p_popup)  # add popup
+```
+
+```{r}
+leaflet(philly_WGS84) %>%
+  addPolygons(
+    stroke = FALSE, 
+    fillColor = ~pal_fun(homic_rate),
+    fillOpacity = 0.8, smoothFactor = 0.5,
+    popup = p_popup) %>%
+  addTiles()
+```
+
+```{r}
+leaflet(philly_WGS84) %>%
+  addPolygons(
+    stroke = FALSE, 
+    fillColor = ~pal_fun(homic_rate),
+    fillOpacity = 0.8, smoothFactor = 0.5,
+    popup = p_popup) %>%
+  addTiles() %>%
+  addLegend(position = "bottomright",  # location
+            pal = pal_fun,    # palette function
+            values = ~homic_rate,  # value to be passed to palette function
+            opacity = 0.7,
+            title = 'Philadelphia homicide density per sqkm') # legend title
+```
+
+```{r}
+# we get seven intrevals from section 3.3
+philly_WGS84$homic_rate_cat %>% unique() %>% str
+```
+
+```{r}
+pal_fun <- colorQuantile(palette = "YlOrRd", domain = NULL, n = 7)
+
+leaflet(philly_WGS84) %>%
+  addPolygons(
+    stroke = FALSE, 
+    fillColor = ~pal_fun(homic_rate),
+    fillOpacity = 0.8, smoothFactor = 0.5,
+    popup = p_popup) %>%
+  addTiles() %>%
+  addLegend("bottomright", opacity = 0.7,
+            colors = brewer.pal(7, "YlOrRd"), 
+            labels = paste0("up to ", format(x = breaks_qt$brks[-1], digits = 2)),
+            title =  'Philadelphia homicide density per sqkm')
+```
+
+```{r}
+pal_fun <- colorQuantile(palette = "YlOrRd", domain = NULL, n = 7)
+
+leaflet(philly_WGS84) %>%
+  addPolygons(
+    stroke = FALSE, 
+    fillColor = ~pal_fun(homic_rate),
+    fillOpacity = 0.8, smoothFactor = 0.5,
+    popup = p_popup,
+    group = "philly") %>%
+  addTiles(group = "OSM") %>%
+  addProviderTiles("CartoDB.DarkMatter", group = "Carto") %>%
+  addLegend("bottomright", 
+            colors = brewer.pal(7, "YlOrRd"), 
+            labels = paste0("up to ", format(breaks_qt$brks[-1], digits = 2)),
+            title = 'Philadelphia homicide density per sqkm') %>%
+  addLayersControl(baseGroups = c("OSM", "Carto"), 
+                   overlayGroups = c("philly"))  
+```
+
+---
+
+# END

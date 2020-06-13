@@ -1,0 +1,6 @@
+"0","philly_buf_intersects <- st_intersects(philly_buf_sf, philly_sf)"
+"0","philly_buf_intersects %>% class()"
+"1","[1]"
+"1"," ""sgbp"""
+"1","
+"

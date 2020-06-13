@@ -1,0 +1,3 @@
+"0","meuse %>% as.data.frame %>% "
+"0","  ggplot(aes(x, y)) + geom_point(aes(size=zinc), color=""blue"", alpha=3/4) + "
+"0","  ggtitle(""Zinc Concentration (ppm)"") + coord_equal() + theme_bw()"

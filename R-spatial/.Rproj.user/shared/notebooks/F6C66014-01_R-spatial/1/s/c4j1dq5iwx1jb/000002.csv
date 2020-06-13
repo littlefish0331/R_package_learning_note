@@ -1,0 +1,7 @@
+"0","leaflet(philly_WGS84) %>%"
+"0","  addPolygons("
+"0","    stroke = FALSE, "
+"0","    fillColor = ~pal_fun(homic_rate),"
+"0","    fillOpacity = 0.8, smoothFactor = 0.5,"
+"0","    popup = p_popup) %>%"
+"0","  addTiles()"

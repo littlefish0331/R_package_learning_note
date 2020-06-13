@@ -1,0 +1,4 @@
+"0","data(metro)"
+"0",""
+"0","# sample 5 cities from the metro dataset"
+"0","five_cities <- metro[sample(length(metro), 5), ]"

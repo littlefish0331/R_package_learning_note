@@ -1,0 +1,9 @@
+"0","library(ggplot2)
+ggplot(data = my_data_frame,
+       mapping = aes(x = name_of_column_with_x_value,
+                     y = name_of_column_with_y_value)) +
+  geom_point()
+"
+"2","Error in ggplot(data = my_data_frame, mapping = aes(x = name_of_column_with_x_value,  : 
+  object 'my_data_frame' not found
+"

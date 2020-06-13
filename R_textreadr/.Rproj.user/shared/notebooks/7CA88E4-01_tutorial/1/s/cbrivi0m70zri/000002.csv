@@ -1,0 +1,120 @@
+"0","read_document
+"
+"1","function (file, skip = 0, remove.empty = TRUE, trim = TRUE, combine = FALSE, 
+"
+"1","    format = FALSE, ocr = TRUE, ...) 
+"
+"1","{
+"
+"1","    if (grepl(""^([fh]ttp)"", file)) {
+"
+"1","        filetype <- ""html""
+"
+"1","    }
+"
+"1","    else {
+"
+"1","        filetype <- tools::file_ext(file)
+"
+"1","        filetype <- ifelse(filetype %in% c(""php"", ""htm""), ""html"", 
+"
+"1","            filetype)
+"
+"1","    }
+"
+"1","    fun <- switch(filetype, pdf = {
+"
+"1","        function(x, ...) {
+"
+"1","            read_pdf(x, remove.empty = FALSE, trim = FALSE, ocr = ocr, 
+"
+"1","                ...)[[""text""]]
+"
+"1","        }
+"
+"1","    }, docx = {
+"
+"1","        function(x, ...) {
+"
+"1","            read_docx(x, remove.empty = FALSE, trim = FALSE, 
+"
+"1","                ...)
+"
+"1","        }
+"
+"1","    }, doc = {
+"
+"1","        function(x, ...) {
+"
+"1","            read_doc(x, remove.empty = FALSE, trim = FALSE, format = format, 
+"
+"1","                ...)
+"
+"1","        }
+"
+"1","    }, rtf = {
+"
+"1","        function(x, ...) {
+"
+"1","            read_rtf(x, remove.empty = FALSE, trim = FALSE, ...)
+"
+"1","        }
+"
+"1","    }, html = {
+"
+"1","        function(x, ...) {
+"
+"1","            read_html(x, remove.empty = FALSE, trim = FALSE, 
+"
+"1","                ...)
+"
+"1","        }
+"
+"1","    }, txt = {
+"
+"1","        function(x, ...) {
+"
+"1","            suppressWarnings(readLines(x, ...))
+"
+"1","        }
+"
+"1","    }, {
+"
+"1","        function(x, ...) {
+"
+"1","            suppressWarnings(readLines(x, ...))
+"
+"1","        }
+"
+"1","    })
+"
+"1","    out <- try(fun(file, ...), silent = TRUE)
+"
+"1","    if (inherits(out, ""try-error"")) 
+"
+"1","        return(NULL)
+"
+"1","    if (isTRUE(remove.empty)) 
+"
+"1","        out <- out[!grepl(""^\\s*$"", out)]
+"
+"1","    if (skip > 0) 
+"
+"1","        out <- out[-seq(skip)]
+"
+"1","    if (isTRUE(trim)) 
+"
+"1","        out <- trimws(out)
+"
+"1","    if (isTRUE(combine)) 
+"
+"1","        out <- textshape::combine(out)
+"
+"1","    out
+"
+"1","}
+"
+"1","<bytecode: 0x000002237e039078>
+"
+"1","<environment: namespace:textreadr>
+"

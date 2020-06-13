@@ -1,0 +1,5 @@
+"0","# Settings additional fitting options"
+"0","variogram = autofitVariogram(formula = zinc ~ soil + ffreq + dist,"
+"0","                             input_data =  meuse,"
+"0","                             miscFitOptions = list(merge.small.bins = FALSE))"
+"0","plot(variogram)"

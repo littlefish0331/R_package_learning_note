@@ -1,0 +1,21 @@
+"0","lnstr_sfc <- st_sfc(lnstr_sfg1, lnstr_sfg2) # just one feature here"
+"0","lnstr_sfc"
+"1","Geometry set for 2 features "
+"1","
+"
+"1","geometry type:  LINESTRING
+"
+"1","dimension:      XY
+"
+"1","bbox:           "
+"1","xmin: 0.05508102 ymin: 0.1396066 xmax: 0.6973772 ymax: 0.8093935"
+"1","
+"
+"1","epsg (SRID):    NA
+"
+"1","proj4string:    NA
+"
+"2","LINESTRING (0.05508102 0.2111587, 0.2847465 0.2...
+"
+"2","LINESTRING (0.2913676 0.6736891, 0.2551908 0.13...
+"

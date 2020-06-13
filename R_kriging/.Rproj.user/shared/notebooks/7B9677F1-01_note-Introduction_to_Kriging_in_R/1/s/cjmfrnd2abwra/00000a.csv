@@ -1,0 +1,4 @@
+"0","lzn.vgm <- variogram(log(zinc)~1, meuse) # calculates sample variogram values "
+"0","lzn.fit <- fit.variogram(object = lzn.vgm, "
+"0","                         model = vgm(psill = 1, model = ""Sph"", "
+"0","                                     range = 900, nugget = 1)) # fit model"

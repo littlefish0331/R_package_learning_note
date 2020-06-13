@@ -1,0 +1,6 @@
+"0","system.file(""docs/Maas2011/pos"", package = ""textreadr"") %>%"
+"0","    read_dir() %>%"
+"0","    peek(., n = Inf, 40) #width表示，要show出content幾個字。"
+"1","Table: [20 x 2]
+
+"

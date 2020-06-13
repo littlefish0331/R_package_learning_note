@@ -1,0 +1,6 @@
+"0","philly_crimes_sf <- mutate(philly_crimes_sf, "
+"0","                           homic_rate_cat = cut(homic_rate, breaks_qt$brks)) "
+"0",""
+"0","ggplot(philly_crimes_sf) + "
+"0","  geom_sf(aes(fill=homic_rate_cat)) +"
+"0","  scale_fill_brewer(palette = ""OrRd"") "

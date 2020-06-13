@@ -1,0 +1,7 @@
+"0","# prj #敘述中有描述單位。+unit=m"
+"0","philly_buf_sp <- gBuffer(spgeom = philly_ctr_sp, width=2000) # create buffer around center"
+"0","# 單位為meter"
+"0",""
+"0","# ---"
+"0","# philly_buf_sp %>% plot()"
+"0","# philly_buf_sp %>% str"

@@ -1,0 +1,5 @@
+"0","lzn.kriged %>% as.data.frame %>%"
+"0","  ggplot(aes(x=x, y=y)) + geom_tile(aes(fill=var1.pred)) + coord_equal() +"
+"0","  scale_fill_gradient(low = ""yellow"", high=""red"") +"
+"0","  scale_x_continuous(labels=comma) + scale_y_continuous(labels=comma) +"
+"0","  theme_bw()"

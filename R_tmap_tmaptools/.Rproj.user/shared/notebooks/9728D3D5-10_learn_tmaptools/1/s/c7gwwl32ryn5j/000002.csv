@@ -1,0 +1,7 @@
+"0","# function that returns min, max, mean and sum of area values"
+"0","summary_areas <- function(x) {"
+"0","  list(min_area = min(x),"
+"0","       max_area = max(x),"
+"0","       mean_area = mean(x),"
+"0","       sum_area = sum(x))"
+"0","}"

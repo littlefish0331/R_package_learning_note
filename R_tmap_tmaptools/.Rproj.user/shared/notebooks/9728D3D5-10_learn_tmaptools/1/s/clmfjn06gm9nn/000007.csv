@@ -1,0 +1,2 @@
+"0","data(World, NLD_muni, land, metro)"
+"0","qtm(land, raster = ""trees"", style = ""natural"")"

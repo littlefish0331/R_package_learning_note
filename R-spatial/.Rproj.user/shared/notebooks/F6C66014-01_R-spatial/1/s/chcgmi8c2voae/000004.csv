@@ -1,0 +1,4 @@
+"0","writeOGR(obj = ph_hom_count_sp, "
+"0","         dsn = ""../data/PhillyCrimerate"", "
+"0","         layer = ""PhillyCrimerate_sp"", "
+"0","         driver = ""ESRI Shapefile"", overwrite_layer = T)"

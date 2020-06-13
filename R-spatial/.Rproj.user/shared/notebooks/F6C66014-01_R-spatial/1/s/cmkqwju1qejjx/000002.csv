@@ -1,0 +1,4 @@
+"0","philly_buf_intersects <- st_intersects(philly_buf_sf, philly_sf)"
+"0",""
+"0","#> Error in st_geos_binop(""intersects"", x, y, sparse = sparse, prepared = prepared) :"
+"0","#> st_crs(x) == st_crs(y) is not TRUE"

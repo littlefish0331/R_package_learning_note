@@ -1,0 +1,2 @@
+"0","# spplot(philly_crimes_sp) #繪製速度有點慢，且會把 attribute 的所有值，放到同一尺度"
+"0","spplot(philly_crimes_sp, ""homic_rate"")"

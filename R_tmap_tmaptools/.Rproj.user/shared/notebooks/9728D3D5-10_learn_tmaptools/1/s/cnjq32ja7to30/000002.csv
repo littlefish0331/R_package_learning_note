@@ -1,0 +1,5 @@
+"0","data(NLD_muni)"
+"0","NLD_muni_pop_per_km2 <- calc_densities(NLD_muni,"
+"0","                                       var = c(""pop_men"", ""pop_women""), "
+"0","                                       target = ""km km"")"
+"0","NLD_muni_pop_per_km2 %>% head"

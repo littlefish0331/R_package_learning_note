@@ -1,0 +1,1 @@
+"0","philly_homicides_sp_aea <- spTransform(philly_homicides_sp, CRS(proj4string(philly_sp)))"

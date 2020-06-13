@@ -1,0 +1,1 @@
+{"frames":[{"character_number":0,"end_character_number":0,"end_line_number":0,"file":"","func":"ggplot(data = my_data_frame, mapping = aes(x = name_of_column_with_x_value, \n    y = name_of_column_with_y_value))","line_number":0}],"message":"Error in ggplot(data = my_data_frame, mapping = aes(x = name_of_column_with_x_value,  : \n  object 'my_data_frame' not found\n"}

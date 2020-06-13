@@ -1,0 +1,13 @@
+"0","# show different simplification factors"
+"0","# simplify_shape(): 函式沒有包好~ 目前失效。"
+"0","jsonlite::toJSON(World, force = T) %>% str"
+"1"," 'json' chr "
+"1",""
+"1","""[{\""iso_a3\"":\""AFG\"",\""name\"":\""Afghanistan\"",\""sovereignt\"":\""Afghanistan\"",\""continent\"":\""Asia\"",\""area\"":65""| __truncated__"
+"1",""
+"1","
+"
+"0","# ---"
+"0","tm1 <- qtm(World %>% simplify_shape(shp = ., fact = 0.05, force_FC = F), title = ""Simplify 0.05"")"
+"2","Error: No method asJSON S3 class: units
+"

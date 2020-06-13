@@ -1,0 +1,981 @@
+---
+title: "01_tutorial"
+author: "Author: [Steve, Yu](https://github.com/littlefish0331)"
+date: "`r Sys.setlocale('LC_TIME', 'English'); format(Sys.time(), '%Y %b %d %a, %H:%M:%S')`" 
+output:
+  rmdformats::readthedown:
+    css: style.css
+    self_contained: TRUE
+    thumbnails: FALSE
+    lightbox: TRUE
+    gallery: FALSE
+    highlight: tango #探戈橘
+    code_folding: show
+    toc_depth: 3
+---
+
+```{r setup, echo=TRUE, message=FALSE, warning=FALSE, results='hide'}
+rm(list = ls()); gc()
+library(knitr)
+library(kableExtra)
+library(dplyr)
+library(data.table)
+library(textreadr)
+knitr::opts_chunk$set(
+	# 這邊是針對所有chunk的設定
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+textreadr is a small collection of convenience tools for reading text documents into R.  
+This is not meant to be an exhaustive collection; for more see the `tm` package.
+
+textreadr是用於將文本文檔讀入R的便利工具的一小部分集合。  
+有關更多信息，請參見`tm`套件。
+
+> p.s.不過`tm`套件有點大。
+
+---
+
+# Functions
+
+Most jobs in my workflow can be completed with read_document and read_dir.  
+The former generically reads in a .docx, .doc, .pdf, .html, or .txt file without specifying the extension.  
+我的工作流程中的大多數作業都可以使用read_document和read_dir完成。 前者通常在不指定擴展名的情況下讀取.docx，.doc，.pdf，.html或.txt文件。
+
+The latter reads in multiple .docx, .doc, .rtf, .pdf, .html, or .txt files from a directory  
+as a data.frame with a file and text column.  
+後者從目錄中讀取多個.docx，.doc，.rtf，.pdf，.html或.txt文件，  
+作為帶有文件和文本列的data.frame。
+
+This workflow is effective because most text documents I encounter are stored  
+as a .docx, .doc, .rtf, .pdf, .html, or .txt file.  
+The remaining common storage formats I encounter  
+include .csv, .xlsx, XML, structured .html, and SQL.  
+該工作流程之所以有效，  
+是因為我遇到的大多數文本文檔都存儲為.docx，.doc，.rtf，.pdf，.html或.txt文件。  
+我遇到的其餘常見存儲格式包括.csv，.xlsx，XML，結構化的.html和SQL。
+
+For these first 4 forms the readr, readxl, xml2, and rvest. For SQL:
+
+| R Package | SQL |
+| --- | --- |
+| ROBDC | Microsoft SQL Server |
+| RMySQL | MySQL |
+| ROracle | Oracle |
+| RJDBC | JDBC |
+
+These packages are already specialized to handle these very specific data formats.  
+`textreadr` provides the basic reading tools  
+that work with the five basic file formats in which text data is stored.
+這些軟件包已經專門處理這些非常特定的數據格式。   
+`textreadr` 提供了基本的閱讀工具，可與存儲文本數據的五種基本文件格式一起使用。
+
+The main functions, task category, & descriptions are summarized in the table below:  
+下表總結了主要功能，任務類別和說明： 
+
+| Function | Task | Description |
+| --- | --- | --- |
+| `read_transcript` | reading | Read 2 column transcripts |
+| `read_docx` | reading | Read .docx |
+| `read_doc` | reading | Read .doc |
+| `read_rtf` | reading | Read .rtf |
+| `read_document` | reading | Generic text reader for .doc, .docx, .rtf, .txt, .pdf |
+| `read_html` | reading | Read .html |
+| `read_pdf` | reading | Read .pdf |
+| `read_dir` | reading | Read and format multiple .doc, .docx, .rtf, .txt, .pdf files |
+| `read_dir_transcript` | reading | Read and format multiple transcript files |
+| `download` | downloading | Download documents |
+| `peek` | viewing | Truncated viewing of `data.frame`s |
+
+> 注意 
+> - read_document(): .doc，.docx，.rtf，.txt，.pdf的通用文本閱讀器
+> - read_dir():讀取並格式化多個.doc，.docx，.rtf，.txt，.pdf文件
+> 另外，套件創造了一個 textreadr 的 class，會預設只顯示10行。目前我還不知道怎麼做變動。
+> 但依照 Reference manual PDF，應該可以用unpeek()做還原。
+
+---
+
+# Installation
+
+To download the development version of textreadr:  
+Download the zip ball or tar ball, decompress and run R CMD INSTALL on it,  
+or use the pacman package to install the development version:
+
+```{r eval=FALSE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load_gh("trinker/textreadr")
+
+# ---
+# 目前 CRAN版本=0.9.0，Github版本=0.9.6
+# devtools::install_github("trinker/textreadr")
+```
+
+---
+
+# Contact
+
+請到 github 文檔上面觀看。
+[trinker/textreadr: Tools to uniformly read in text data including semi-structured transcripts](https://github.com/trinker/textreadr)
+
+---
+
+# Demonstration
+
+## Load the Packages/Data
+
+該套件各種示範資料的路徑。
+
+docx, doc, xls, xlsx
+
+```{r}
+trans_docs <- dir(
+    system.file("docs", package = "textreadr"), 
+    pattern = "^trans",
+    full.names = TRUE
+)
+trans_docs
+```
+
+> 除了pptx檔失效之外，其餘正常。
+> pptx檔， 在0.9.6版本有
+
+- docx, doc, pdf, txt, ~~pptx~~
+
+```{r}
+docx_doc <- system.file("docs/Yasmine_Interview_Transcript.docx", package = "textreadr")
+doc_doc <- system.file("docs/Yasmine_Interview_Transcript.doc", package = "textreadr")
+pdf_doc <- system.file("docs/rl10075oralhistoryst002.pdf", package = "textreadr")
+html_doc <- system.file('docs/textreadr_creed.html', package = "textreadr")
+txt_doc <- system.file('docs/textreadr_creed.txt', package = "textreadr")
+pptx_doc <- system.file('docs/Hello_World.pptx', package = "textreadr")
+```
+
+rtf, pdf_img(掃描檔)
+
+```{r}
+rtf_doc <- download(url = 'https://raw.githubusercontent.com/trinker/textreadr/master/inst/docs/trans7.rtf')
+
+pdf_doc_img <- system.file("docs/McCune2002Choi2010.pdf", package = "textreadr")
+```
+
+## Download & Browse
+
+The download and browse functions are utilities for downloading and opening files and directories.  
+下載和瀏覽功能是用於下載和打開文件和目錄的實用程序。
+
+### Download
+
+download is simply a wrapper for `curl::curl_download`  
+that allows multiple documents to be download,  
+has the tempdir pre-set as the destfile (named loc in textreadr),  
+and also returns the path to the file download for easy use in a magrittr chain.  
+
+download只是curl :: curl_download的包裝器，  
+它允許下載多個文檔，  
+將tempdir預先設置為destfile(在textreadr中命名為loc)，  
+並且還返回文件下載的路徑，以便在magrittr鏈中輕鬆使用。
+
+Here I download a .docx file of presidential debated from 2012.
+
+```{r}
+'https://github.com/trinker/textreadr/raw/master/inst/docs/pres.deb1.docx' %>%
+    download() %>%
+    read_docx() %>%
+    head(3)
+```
+
+### Browse 瀏覽
+
+browse is a system dependent tool for opening files and directories.  
+In the example below we open the directory that contains the example documents used in this README.
+
+瀏覽是用於打開文件和目錄的系統相關工具。  
+在下面的示例中，我們打開包含該自述文件中使用的示例文檔的目錄。
+
+```{r}
+# system.file("docs", package = "textreadr") %>% browse()
+```
+
+We can open files as well:
+
+```{r}
+# html_doc %>% browse()
+```
+
+## Generic Document Reading
+
+The `read_document` is a generic wrapper for  
+`read_docx`, `read_doc`, `read_html`, and `read_pdf`  
+that detects the file extension and chooses the correct reader.  
+read_document是read_docx，read_doc，read_html和read_pdf的通用包裝，  
+它可以檢測文件擴展名並選擇正確的閱讀器。 
+
+> 可以看一下 read_document() 的寫法。
+
+For most tasks that require reading a .docx, .doc, .html, .pdf, or .txt file this is the go-to function to get the job done.  
+Below I demonstrate reading each of these five file formats with `read_document`.
+對於大多數需要讀取.docx，.doc，.html，.pdf或.txt文件的任務，  
+這是完成工作的必備功能。  
+下面，我演示瞭如何使用read_document閱讀這五種文件格式。
+
+```{r eval=FALSE}
+read_document
+```
+
+```{r}
+docx_doc %>%
+    read_document() %>%
+    head(3)
+## [1] "JRMC2202 Audio  Project"      "Interview Transcript"         "Interviewer:  Yasmine Hassan"
+```
+
+```{r}
+doc_doc %>%
+    read_document() %>%
+    head(3)
+## [1] "JRMC2202 Audio Project"      "Interview Transcript"        "Interviewer: Yasmine Hassan"
+```
+
+```{r}
+rtf_doc %>%
+    read_document() %>%
+    head(3)
+## [1] "Researcher 2:\tOctober 7, 1892."           "Teacher 4:\tStudents it's time to learn."  "[Student discussion; unintelligible]"
+```
+
+```{r}
+pdf_doc %>%
+    read_document() %>%
+    head(3)
+## [1] "Interview with Mary Waters Spaulding, August 8, 2013"
+## [2] "CRAIG BREADEN: My name is Craig Breaden. I'm the audiovisual archivist at Duke University,"    
+## [3] "and I'm with Kirston Johnson, the curator of the Archive of Documentary Arts at Duke. The date"
+```
+
+```{r}
+html_doc %>%
+    read_document() %>%
+    head(3)
+## [1] "textreadr Creed"
+## [2] "The textreadr package aims to be a lightweight tool kit that handles 80% of an analyst's text reading in needs."
+## [3] "The package handles .docx, .doc, .pdf, .html, and .txt."
+```
+
+```{r}
+txt_doc %>%
+    read_document() %>%
+    paste(collapse = "\n") %>%
+    cat()
+## The textreadr package aims to be a lightweight
+## tool kit that handles 80% of an analyst's text
+## reading in needs.
+## The package handles .docx, .doc, .pdf, .html, and .txt.
+## If you have another format there is likely already
+## another popular R package that specializes in this
+## read in task.  For example, got XML, use the xml2
+## package, authored by Hadley Wickham, Jim Hester, &
+## Jeroen Ooms.  Need special handling for .html?  Use
+## Hadley Wickham's rvest package.  Got SQL?  Oh boy
+## there's a bunch of great ways to read it into R.
+## | R Package   | SQL                    |
+## |-------------|------------------------|
+## | ROBDC       | Microsoft SQL Server   |
+## | RMySQL      | MySQL                  |
+## | ROracle     | Oracle                 |
+## | RJDBC       | JDBC                   |
+```
+
+```{r eval=FALSE}
+# 目前 CRAN 上面的版本，還沒有 read_pptx()，所以下面的程式會出錯。
+pptx_doc %>%
+    read_document() %>% 
+    head(3)
+## [1] "Hello World"  "Tyler Rinker" "Slide 1"
+```
+
+## Read Directory Contents 
+
+閱讀目錄內容
+
+Often there is a need to read multiple files in from a single directory.  
+通常，需要從單個目錄中讀取多個文件。 
+
+The `read_dir` function wraps other **textreadr** functions   
+and `lapply` to create a data frame with a document and text column (one row per document). 
+read_dir函數包裝其他textreadr函數，  
+並應用以創建帶有文檔和文本列(每個文檔一行)的數據框。  
+
+We will read the following documents from the 'pos' directory in **textreadr**'s system file:
+我們將從textreadr的系統文件中的"pos"目錄中讀取以下文檔：
+
+> 從 read_dir()去看，一樣是用 read_document()  
+> 但是只會一行一行讀取，所以文件如果有多行，就會有多筆唷!!
+
+```{r}
+system.file("docs/Maas2011/pos", package = "textreadr") %>%
+    read_dir() %>%
+    peek(., n = Inf, 40) #width表示，要show出content幾個字。
+```
+
+## Read .docx
+
+A .docx file is nothing but a fancy container.  
+It can be parsed via XML.  
+.docx文件不過是精美的容器。  
+可以通過XML進行解析。  
+
+The `read_docx` function allows the user to read in a .docx file as plain text.  
+Elements are essentially the p tags (explicitly `//w:t` tags collapsed with `//w:p` tags) in the markup.
+read_docx函數允許用戶以純文本格式讀取.docx文件。  
+元素本質上是標記中的p標籤(用//w:p標籤明顯折疊的//w:t標籤)。
+
+```{r}
+docx_doc %>%
+    read_docx() %>%
+    head(3)
+## [1] "JRMC2202 Audio  Project"      "Interview Transcript"         "Interviewer:  Yasmine Hassan"
+```
+
+```{r}
+docx_doc %>%
+    read_docx(skip = 15) %>%
+    head(3)
+## [1] "Hassan:             Could you please tell me your name, your title, your age, and your place  of ref ,                                      umm, residence?"
+## [2] "Abd Rabou:     My name is Ahmad Abd Rabou. I'm assistant professor of comparative politics at"                                                              
+## [3] "both Cairo University and The American University in Cairo. I'm 34 years old. I"
+```
+
+## Read .doc
+
+A .doc file is a bit trickier to read in than .docx   
+but is made easy by the `antiword` package  
+which wraps the Antiword program in an OS independent way.
+.doc文件比.docx文件讀起來有些棘手，  
+但是Antiword套件使其變得容易起來，  
+該包將Antiword程序以與操作系統無關的方式包裝。
+
+```{r}
+doc_doc %>%
+    read_doc() %>%
+    head()
+## [1] "JRMC2202 Audio Project"      "Interview Transcript"        "Interviewer: Yasmine Hassan" "Narrator: Ahmad Abd Rabou"  
+## [5] "Date: 16/10/2014"            "Place: Narrator's office"
+```
+
+
+```{r}
+doc_doc %>%
+    read_doc(skip = 15) %>%
+    head(7)
+## [1] "Hassan:           Could you please tell me your name, your title, your age,"
+## [2] "and your place of ref,"                                                     
+## [3] "umm, residence?"                                                            
+## [4] "Abd Rabou:   My name is Ahmad Abd Rabou. I'm assistant professor of"        
+## [5] "comparative politics at"                                                    
+## [6] "both Cairo University and The American University"                          
+## [7] "in Cairo. I'm 34 years old. I"
+```
+
+## Read .rtf
+
+Rich text format (.rtf) is a plain text document with markup similar to latex. The **striprtf** package provides the backend for `read_rtf`.
+
+Rich text format(.rtf)是純文本文檔，其標記類似於latex。   
+`striprtf` 軟件包為read_rtf提供了後端。
+
+```{r}
+rtf_doc %>% read_rtf() 
+# rtf_doc %>% striprtf::read_rtf()
+# rtf_doc %>% striprtf::read_rtf() %>% striprtf::strip_rtf()
+
+## [1] "Researcher 2:\tOctober 7, 1892."
+## [2] "Teacher 4:\tStudents it's time to learn."
+## [3] "[Student discussion; unintelligible]"
+## [4] "Multiple Students:\tYes teacher we‘re ready to learn." 
+## [5] "Teacher 4:\tLet's read this terrific book together.  It's called Moo Baa La La La and – what was I going to …  Oh yes — The story is by Sandra Boynton."
+## [6] ""A cow says Moo. A Sheep says Baa. Three singing pigs say LA LA LA! \"No, no!\" you say, that isn't right. The pigs say oink all day and night. Rhinoceroses snort and snuff. And little dogs go ruff ruff ruff! Some other dogs go bow wow wow! And cats and kittens say Meow! Quack! Says the duck. A horse says neigh. It's quiet now. What do you say? ""
+```
+
+## Read .pdf
+
+Like .docx a .pdf file is simply a container.  
+Reading PDF's is made easier with a number of command line tools.  
+像.docx一樣，.pdf文件只是一個容器。  
+使用許多命令行工具可以更輕鬆地閱讀PDF。 
+
+A few methods of PDF reading have been incorporated into R.  
+Here I wrap **pdftools** `pdf_text` to produce `read_pdf`, a function   
+with sensible defaults that is designed to read PDFs into R for as many folks as possible right out of the box.  
+R中已經合併了一些PDF閱讀方法。  
+在這裡，我包裝pdftools 的 pdf_text() 來產生 read_pdf()，  
+這是一個具有合理默認值的函數，旨在立即為盡可能多的人將PDF閱讀到R中。
+
+Here I read in a PDF with `read_pdf`.  
+Notice the result is a data frame with meta data, including page numbers and element (row) ids.
+在這裡，我使用read_pdf閱讀PDF。  
+請注意，結果是一個包含元數據的數據幀，其中包括頁碼和元素(行)ID。
+
+```{r}
+# pdf_doc %>% read_pdf() #只會顯示十行。
+tmp <- pdf_doc %>% read_pdf()
+
+## Table: [616 x 3]
+## 
+##    page_id element_id text                                    
+## 1  1       1          Interview with Mary Waters Spaulding, Au
+## 2  1       2          CRAIG BREADEN: My name is Craig Breaden.
+## 3  1       3          and I’m with Kirston Johnson, the curato
+## 4  1       4          is August 8, 2013, and we are in Lexingt
+## 5  1       5          life and family, and particularly about 
+## 6  1       6          your full name, date of birth, and place
+## 7  1       7          MARY WATERS SPAULDING: My name is Mary E
+## 8  1       8          birth was Lexington, NC, on May 14, 1942
+## 9  1       9          BREADEN: Can you describe what Lexington
+## 10 1       10         1940’s?                                 
+## .. ...     ...        ...
+```
+
+### Image Based pdf: OCR
+
+Image based .pdfs require optical character recognition (OCR) in order for the images to be converted to text.  
+The `ocr` argument of `read_pdf` allows the user to read in image based .pdf files   
+and allow the [**tesseract**](https://cran.r-project.org/package=tesseract) package do the heavy lifting in the backend.  
+You can look at the .pdf we’ll be using by running:  
+
+基於圖像的.pdf文件需要光學字符識別(OCR)，以便將圖像轉換為文本。  
+read_pdf的ocr參數允許用戶讀取基於圖像的.pdf文件，  
+並允許tesseract軟件包在後端進行繁重的工作。  
+您可以通過運行以下命令查看我們將使用的.pdf：  
+
+```{r}
+# browse(pdf_doc_img)
+```
+
+First let’s try the task without using OCR.
+
+```{r}
+pdf_doc_img %>% read_pdf(ocr = FALSE)
+
+## Table: [0 x 3]
+## 
+## [1] page_id    element_id text      
+## <0 rows> (or 0-length row.names)
+## ... ...        ...        ...
+```
+
+And now using OCR via tesseract.  
+Note that ocr = TRUE is the default behavior of read_pdf.  
+現在通過tesseract使用OCR。  
+注意ocr = TRUE是read_pdf的默認行為。
+
+> OCR 是基於 tesseract套件。
+> OCR辨識 需要一段時間。
+> 且對於一頁有兩大欄的期刊，仍然只會一行行辨識。
+
+```{r}
+# pdf_doc_img %>% read_pdf(ocr = TRUE)
+tmp <- pdf_doc_img %>% read_pdf(ocr = TRUE)
+
+## Converting page 1 to C:\Users\AppData\Local\Temp\RtmpKeJAnL/McCune2002Choi2010_01.png... done!
+## Converting page 2 to C:\Users\AppData\Local\Temp\RtmpKeJAnL/McCune2002Choi2010_02.png... done!
+
+## Table: [104 x 3]
+##
+##    page_id element_id text                                           
+## 1  1       1          A Survey of Binary Similarity and Distan       
+## 2  1       2          Seung-Seok Choi, Sung-Hyuk Cha, Charles        
+## 3  1       3          Department of Computer Science, Pace Uni       
+## 4  1       4          New York, US                                   
+## 5  1       5          ABSTRACT ecological 25 <U+FB01>sh species [2|].
+## 6  1       6          conventional similarity measures to solv       
+## 7  1       7          The binary feature vector is one of the        
+## 8  1       8          representations of patterns and measurin       
+## 9  1       9          distance measures play a critical role i       
+## 10 1       10         such as clustering, classi<U+FB01>cation, etc. 
+## .. ...     ...        ... 
+
+```
+
+## Read .pptx
+
+> 目前這個版本無法 Read pptx，因為還沒有 read_pptx()。  
+> 但是可以看一下結果跟pptx檔案(從R3.6版本copy)，做一下比較。
+
+Like the .docx, a .pptx file is also nothing but a fancy container.  
+Likewise, it can be parsed via XML.  
+The `read_pptx` function allows the user to read in a .pptx file as a data.frame with plain text that tracks slide id numbers.
+
+像.docx一樣，.pptx文件也不過是精美的容器。  
+同樣，可以通過XML進行解析。  
+使用read_pptx函數，用戶可以將.pptx文件作為具有純文本的data.frame讀取，  
+該文本跟踪幻燈片ID號。
+
+```{r eval=FALSE}
+pptx_doc %>% read_pptx()
+
+##     slide_id element_id                      text
+##  1:        1          1               Hello World
+##  2:        1          2              Tyler Rinker
+##  3:        2          1                   Slide 1
+##  4:        2          2              Really nifty
+##  5:        2          3             Kinda  shifty
+##  6:        2          4           Not worth fifty
+##  7:        3          1                 Wowzers !
+##  8:        3          2 There’s a cat sniffing me
+##  9:        3          3       I think he likes me
+## 10:        3          4                      Ouch
+## 11:        3          5                 He bit me
+## 12:        3          6       I think he hates me
+## 13:        4          1                 Two Lists
+## 14:        4          2                       One
+## 15:        4          3                       Two
+## 16:        4          4                     Three
+## 17:        4          5                      Blue
+## 18:        4          6                     Green
+## 19:        4          7                    Orange
+```
+
+## Read .html
+
+Often a researcher only wishes to grab the text from the body of .html files.  
+The `read_html` function does exactly this task.  
+研究人員通常只希望從.html文件的正文中獲取文本。  
+read_html函數完全可以完成此任務。  
+
+For finer control over .html scraping the user may investigate  
+the **xml2** & **rvest** packages for parsing .html and .xml files.  
+Here I read in HTML with `read_html`.
+為了更好地控制.html抓取，用戶可以研究  
+xml2和rvest軟件包以解析.html和.xml文件。  
+在這裡，我使用read_html閱讀HTML。
+
+```{r}
+# browse(x = html_doc) #打開html，比對結果。
+html_doc %>% read_html() 
+
+##  [1] "textreadr Creed"
+##  [2] "The textreadr package aims to be a lightweight tool kit that handles 80% of an analyst’s text reading in needs."
+##  [3] "The package handles .docx, .doc, .pdf, .html, and .txt."
+##  [4] "If you have another format there is likely already another popular R package that specializes in this read in task. For example, got XML, use the xml2 package, authored by Hadley Wickham, Jim Hester, & Jeroen Ooms. Need special handling for .html? Use Hadley Wickham’s rvest package. Got SQL? Oh boy there’s a bunch of great ways to read it into R."
+##  [5] "R Package"   
+##  [6] "SQL"
+##  [7] "ROBDC"
+##  [8] "Microsoft SQL Server"
+##  [9] "RMySQL"
+## [10] "MySQL"
+## [11] "ROracle"
+## [12] "Oracle"
+## [13] "RJDBC"
+## [14] "JDBC"
+```
+
+## Read Transcripts
+
+Many researchers store their dialogue data (including interviews and observations) as a .docx or .xlsx file.  
+許多研究人員將其對話數據(包括訪談和觀察結果)存儲為.docx或.xlsx文件。  
+
+Typically the data is a two column format  
+with the person in the first column and the text in the second separated  
+by some sort of separator (often a colon).  
+通常，數據為兩列格式，  
+第一列中的人員為人，第二列中的文本  
+由某種分隔符(通常為冒號)分隔。  
+
+The `read_transcript` wraps up many of these assumptions into a reader that will extract the data as a data frame with a person and text column.  
+read_transcript將這些假設中的許多內容匯總到閱讀器中，  
+該閱讀器將提取數據作為帶有人員和文本列的數據框。  
+
+The `skip` argument is very important for correct parsing.
+skip參數對於正確解析非常重要。  
+
+Here I read in and parse the different formats `read_transcript` handles.  
+These are the files that will be read in:  
+在這裡，我閱讀並分析了read_transcript句柄的不同格式。  
+這些是將要讀取的文件：
+
+> 每個文本結構，讀出來的果不進相同，
+> 各有優缺點。
+
+```{r eval=FALSE}
+basename(trans_docs)
+
+## [1] "trans1.docx" "trans2.docx" "trans3.docx" "trans4.xlsx" "trans5.xls"  "trans6.doc"  "trans7.rtf"  "transcripts"
+```
+
+### docx Simple
+
+只能說效果差強人意，還可以使用!!
+
+```{r}
+trans_docs[1]
+read_transcript(trans_docs[1])
+
+## Table: [5 x 2]
+## 
+##   Person            Dialogue                                
+## 1 Researcher 2      October 7, 1892.                        
+## 2 Teacher 4         Students it's time to learn. [Student di
+## 3 Multiple Students Yes teacher we're ready to learn.       
+## 4 [Cross Talk 3     00]                                     
+## 5 Teacher 4         Let's read this terrific book together. 
+## . ...               ...
+```
+
+### docx With Skip
+
+`skip` is important to capture the document structure.  
+Here not skipping front end document matter throws an error, while `skip = 1` correctly parses the file.
+
+跳過對於捕獲文檔結構很重要。  
+在這裡，不跳過前端文檔會引發錯誤，而skip = 1則可以正確解析文件。
+
+```{r eval = FALSE}
+trans_docs[2]
+read_transcript(trans_docs[2])
+
+## Error in data.frame(X1 = trimws(speaker), X2 = trimws(pvalues), stringsAsFactors = FALSE): arguments imply differing number of rows: 7, 8
+```
+
+```{r}
+trans_docs[2]
+read_transcript(trans_docs[2], skip = 1)
+
+## Table: [5 x 2]
+## 
+##   Person            Dialogue                                
+## 1 Researcher 2      October 7, 1892.                        
+## 2 Teacher 4         Students it's time to learn. [Student di
+## 3 Multiple Students Yes teacher we're ready to learn.       
+## 4 [Cross Talk 3     00]                                     
+## 5 Teacher 4         Let's read this terrific book together. 
+## . ...               ...
+```
+
+### docx With Dash Separator
+
+The colon is the default separator.  
+At times other separators may be used to separate speaker and text.  
+冒號是默認的分隔符。  
+有時可以使用其他分隔符來分隔說話者和文本。  
+
+Here is an example where hypens are used as a separator.  
+Notice the poor parse with colon set as the default separator the first go round.
+這是使用連字符作為分隔符的示例。  
+請注意，第一次循環時，用冒號設置為默認分隔符的解析很差。
+
+```{r}
+trans_docs[3]
+read_transcript(trans_docs[3], skip = 1)
+
+## Table: [1 x 2]
+## 
+##   Person        Dialogue                                
+## 1 [Cross Talk 3 Teacher 4-Students it's time to learn. [
+## . ...           ...
+```
+
+```{r}
+read_transcript(trans_docs[3], sep = "-", skip = 1)
+read_transcript(trans_docs[3], sep = "-", skip = 0)
+
+## Table: [3 x 2]
+## 
+##   Person            Dialogue                                
+## 1 Teacher 4         Students it's time to learn. [Student di
+## 2 Multiple Students Yes teacher we're ready to learn. [Cross
+## 3 Teacher 4         Let's read this terrific book together. 
+## . ...               ...
+```
+
+### xls and xlsx
+
+```{r}
+trans_docs[4]
+read_transcript(trans_docs[4])
+
+## New names:
+## * `` -> ...1
+## * `` -> ...2
+
+## Table: [7 x 2]
+## 
+##   Person             Dialogue                                
+## 1 Researcher 2:      October 7, 1892.                        
+## 2 <NA>               NA                                      
+## 3 Teacher 4:         Students it's time to learn.            
+## 4 <NA>               NA NA NA                                
+## 5 Multiple Students: Yes teacher we're ready to learn.       
+## 6 <NA>               NA NA NA                                
+## 7 Teacher 4:         Let's read this terrific book together. 
+## . ...                ...
+```
+
+```{r}
+trans_docs[5]
+read_transcript(trans_docs[5])
+
+## New names:
+## * `` -> ...1
+## * `` -> ...2
+
+## Table: [7 x 2]
+## 
+##   Person             Dialogue                                
+## 1 Researcher 2:      October 7, 1892.                        
+## 2 <NA>               NA                                      
+## 3 Teacher 4:         Students it's time to learn.            
+## 4 <NA>               NA NA NA                                
+## 5 Multiple Students: Yes teacher we're ready to learn.       
+## 6 <NA>               NA NA NA                                
+## 7 Teacher 4:         Let's read this terrific book together. 
+## . ...                ...
+```
+
+### doc
+
+```{r}
+trans_docs[6]
+read_transcript(trans_docs[6], skip = 1)
+read_transcript(trans_docs[6], skip = 0)
+
+## Table: [3 x 2]
+## 
+##   Person            Dialogue                                
+## 1 Teacher 4         Students it's time to learn. [Student di
+## 2 Multiple Students Yes teacher we're ready to learn.       
+## 3 Teacher 4         Let's read this terrific book together. 
+## . ...               ...
+```
+
+### rtf
+
+```{r}
+rtf_doc
+read_transcript(rtf_doc, skip = 1)
+read_transcript(rtf_doc, skip = 0) #skip參數對讀取 .rtf檔，沒有效果。
+
+## Table: [4 x 2]
+## 
+##   Person            Dialogue                                
+## 1 Researcher 2      October 7, 1892.                        
+## 2 Teacher 4         Students it's time to learn. [Student di
+## 3 Multiple Students Yes teacher we're ready to learn.       
+## 4 Teacher 4         Let's read this terrific book together. 
+## . ...               ...
+```
+
+### Reading Text
+
+Like `read.table`, `read_transcript` also has a `text` argument which is useful for demoing code.  
+像read.table一樣，read_transcript也有一個text參數，對演示代碼很有用。
+
+```{r}
+read_transcript(
+    text = 
+"34    The New York Times reports a lot of words here.
+12    Greenwire reports a lot of words.
+31    Only three words.
+ 2    The Financial Times reports a lot of words.
+ 9    Greenwire short.
+13    The New York Times reports a lot of words again.",
+    col.names = c("NO", "ARTICLE"), sep = "   "
+)
+
+## Table: [6 x 2]
+## 
+##   NO ARTICLE                                 
+## 1 34 The New York Times reports a lot of word
+## 2 12 Greenwire reports a lot of words.       
+## 3 31 Only three words.                       
+## 4 2  The Financial Times reports a lot of wor
+## 5 9  Greenwire short.                        
+## 6 13 The New York Times reports a lot of word
+## . .. ...
+```
+
+### Authentic Interview 真實採訪
+
+Here I read in an authentic interview transcript:  
+在這裡，我讀了一個真實的採訪記錄: 
+
+```{r}
+docx_doc %>%
+    read_transcript(c("Person", "Dialogue"), skip = 19)
+
+## Table: [13 x 2]
+## 
+##    Person    Dialogue                                
+## 1  Hassan    Professor Abd Rabou, being a current pro
+## 2  Abd Rabou Sure. First of all, let's look at the so
+## 3  Hassan    So from this point of the differences of
+## 4  Abd Rabou No. I don't--It depends --Like my--This 
+## 5  Hassan    So, as political science students, does 
+## 6  Abd Rabou Less, not mature, they are politically m
+## 7  Hassan    Since you are an active politician and w
+## 8  Abd Rabou It does somehow. What I do is--First of 
+## 9  Hassan    But you are characterized with, somehow 
+## 10 Abd Rabou So far I didn't get--So far--Maybe it do
+## .. ...       ...
+```
+
+## Pairing textreadr
+
+**textreadr** is but one package used in the text analysis (often the first package used).  
+textreadr只是文本分析中使用的一個軟件包(通常是第一個使用的軟件包)。  
+
+It pairs nicely with a variety of other text munging and analysis packages.  
+它與各種其他文本修改和分析軟件包很好地配對。  
+
+In the example below I show just a few other package pairings that are used to extract case names  
+(e.g., "Jones v. State of New York") from a [Supreme Court Database Code Book](http://scdb.wustl.edu/_brickFiles/2012_01/SCDB_2012_01_codebook.pdf).  
+在下面的示例中，我僅顯示了用於從最高法院數據庫代碼簿中提取案件名稱  
+(例如" Jones訴紐約州")的其他幾個軟件包對。
+
+I demonstrate pairings with [**textshape**](https://github.com/trinker/textshape), [**textclean**](https://github.com/trinker/textclean), [**qdapRegex**](https://github.com/trinker/qdapRegex), and [**dplyr**](https://github.com/hadley/dplyr).  
+我演示了與textshape，textclean，qdapRegex和dplyr的配對。
+
+```{r eval=FALSE}
+if (!require("pacman")) install.packages("pacman"); library(pacman)
+p_load(dplyr, qdapRegex)
+p_load_current_gh(file.path('trinker', c('textreadr', 'textshape', 'textclean')))
+
+##          checking for file 'C:\Users\trinker\AppData\Local\Temp\RtmpsRIhsW\remotes1bec16a84326\trinker-textreadr-b006057/DESCRIPTION' ...  v  checking for file 'C:\Users\trinker\AppData\Local\Temp\RtmpsRIhsW\remotes1bec16a84326\trinker-textreadr-b006057/DESCRIPTION'
+##       -  preparing 'textreadr': (416ms)
+##    checking DESCRIPTION meta-information ...  v  checking DESCRIPTION meta-information
+##       -  checking for LF line-endings in source and make files and shell scripts
+##       -  checking for empty or unneeded directories
+##       -  looking to see if a 'data/datalist' file should be added
+##       -  building 'textreadr_0.9.4.tar.gz'
+
+```
+
+```{r}
+library(textshape)
+library(textclean)
+```
+
+- [Non-ASCII Glyphs](https://terpconnect.umd.edu/~zben/Web/CharSet/htmlchars.html)
+- [R split numeric vector at position - Stack Overflow](https://stackoverflow.com/questions/16357962/r-split-numeric-vector-at-position)
+- [SplitAt function | R Documentation](https://www.rdocumentation.org/packages/DescTools/versions/0.99.34/topics/SplitAt)
+
+```{r}
+## Read in pdf, split on variables
+## 自己去下載後放在 data/
+dat <- 'http://scdb.wustl.edu/_brickFiles/2012_01/SCDB_2012_01_codebook.pdf' %>%
+    textreadr::download() %>% #吐回下載的地址，Temp/
+    textreadr::read_pdf() %>% #讀取pdf
+    filter(page_id > 5 & page_id < 79) %>% #讀取 page 6 to 78
+    mutate(
+        loc = grepl('Variable Name', text, ignore.case=TRUE), #偵測雜訊文字，可以作為分段標轉
+        text = textclean::replace_non_ascii(text) #Non-ASCII符號轉換
+    ) %>%
+    textshape::split_index(x = ., indices = which(.$loc) -1) %>% #類似 SplitAt()
+    lapply(select, -loc)
+```
+
+```{r}
+## Function to extract cases
+ex_vs <- qdapRegex::ex_(pattern = "((of|[A-Z][A-Za-z'.,-]+)\\s+)+([Vv]s?\\.\\s+)(([A-Z][A-Za-z'.,-]+\\s+)*((of|[A-Z][A-Za-z',.-]+),?($|\\s+|\\d))+)")
+
+## Extract and filter cases
+dat %>% lapply(function(x) {
+  x$text %>%
+    textshape::combine() %>%
+    ex_vs()  %>% 
+    c() %>% 
+    textclean::mgsub(pattern = c("^[ ,]+", "[ ,0-9]+$", "^(See\\s+|E\\.g\\.?,)"), 
+                     replacement = "", fixed = FALSE)
+    }) %>%
+  setNames(seq_along(.)) %>%
+  {.[sapply(., function(x) all(length(x) > 1 | !is.na(x)))]} #去除長度沒有大於1的向量。
+
+## $`24`
+## [1] " Townsend v. Sain"        " Simpson v. Florida"      "McNally v. United States" "United States v. Gray"   
+## 
+## $`30`
+## [1] "Edward V. Heck"
+## 
+## $`36`
+## [1] "State of Colorado v. Western Alfalfa Corporation"
+## 
+## $`38`
+## [1] "Pulliam v. Allen"   "Burnett v. Grattan"
+## 
+## $`40`
+##  [1] " United States v. Knox"                                            "Lassiter v. Department of Social Services"                        
+##  [3] "Arkansas v. Tennessee"                                             "Utah v. United States"                                            
+##  [5] "Johnson v. United States"                                          "Baldonado v. California"                                          
+##  [7] "Conway v. California Adult Authority"                              "Wheaton v. California"                                            
+##  [9] "Maxwell v. Bishop"                                                 "National Labor Relations Board v. United Insurance Co. of America"
+## [11] "United States v. King"                                             "National Labor Relations Board v. United Insurance Co. of America"
+## [13] "United States v. King"                                            
+## 
+## $`44`
+## [1] "Grisham v. Hagan"                   "McElroy v. Guagliardo"              "Virginia Supreme Court v. Friedman"
+## 
+## $`48`
+## [1] "Baker v. Carr"                     "Gray v. Sanders"                   " Patterson v. McLean Credit Union"
+## 
+## $`53`
+## [1] "Bates v. Arizona State Bar"
+## 
+## $`57`
+## [1] "New York Gaslight Club, Inc. v. Carey" "Pruneyard Shopping Center v. Robins"  
+## 
+## $`58`
+## [1] "Mobile v. Bolden"                             "Williams v. Brown"                            "United States v. Havens"                     
+## [4] "Parratt v. Taylor"                            "Dougherty County Board of Education v. White" "Jenkins v. Anderson"
+```
+
+---
+
+# END
+
+## Reference manual PDF
+
+下面紀錄一些 github 上 README.md 沒有提到的函式。
+
+> transcript 就是只有兩行的訪談紀錄。  
+> 所以資料必須只能分成兩欄位。
+
+```{r}
+## EXAMPLE 1
+as_transcript(
+"34   The New York Times reports a lot of words here.
+12   Greenwire reports a lot of words.
+31   Only three words.
+2   The Financial Times reports a lot of words.
+9   Greenwire short.
+13   The New York Times reports a lot of words again.",
+col.names = c("NO", "ARTICLE"), 
+sep = "   ")
+```
+
+```{r}
+## EXAMPLE 2
+as_transcript(
+"34.. The New York Times reports a lot of words here.
+12.. Greenwire reports a lot of words.
+31.. Only three words.
+2.. The Financial Times reports a lot of words.
+9.. Greenwire short.
+13.. The New York Times reports a lot of words again.",
+col.names = c("NO", "ARTICLE"), sep = "\\.\\.")
+```
+
+```{r}
+## EXAMPLE 3
+as_transcript(
+"JAKE The New York Times reports a lot of words here.
+JIM Greenwire reports a lot of words.
+JILL Only three words.
+GRACE The Financial Times reports a lot of words.
+JIM Greenwire short.
+JILL The New York Times reports a lot of words again.",
+person.regex = '(^[A-Z]{3,})')
+```
+
+

@@ -1,0 +1,6 @@
+"0","NLD_muni <- sf::st_sf(data.frame(NLD_muni, NLD_muni_pop_per_km2))"
+"0","tm_shape(NLD_muni) +"
+"0","  tm_polygons(c(""pop_men_km.2"", ""pop_women_km.2""),"
+"0","              title = expression(""Population per "" * km^2), style = ""quantile"") +"
+"0","  tm_facets(free.scales = FALSE) +"
+"0","  tm_layout(panel.show = TRUE, panel.labels = c(""Men"", ""Women""))"

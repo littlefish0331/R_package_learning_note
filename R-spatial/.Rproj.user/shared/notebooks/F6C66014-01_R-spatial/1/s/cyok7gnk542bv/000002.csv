@@ -1,0 +1,29 @@
+"0","library(ggmap)"
+"0","# tmaptools::geocode_OSM(""Philadelphia"")"
+"0","# Philadelphia Lon is -75.16522 and Lat 39.95258 "
+"0","# -75.28030  39.86700 -74.95583  40.13796 "
+"0",""
+"0","ph_basemap <- get_stamenmap(bbox  = c(left = -75.28030, bottom = 39.86700, "
+"0","                                      right = -74.95583, top = 40.13796), "
+"0","                            zoom = 11, "
+"0","                            maptype = 'terrain-background', "
+"0","                            source = 'stamen')"
+"2","Source : http://tile.stamen.com/terrain-background/11/595/774.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/596/774.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/597/774.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/595/775.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/596/775.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/597/775.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/595/776.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/596/776.png
+"
+"2","Source : http://tile.stamen.com/terrain-background/11/597/776.png
+"
+"0","ggmap(ph_basemap)"

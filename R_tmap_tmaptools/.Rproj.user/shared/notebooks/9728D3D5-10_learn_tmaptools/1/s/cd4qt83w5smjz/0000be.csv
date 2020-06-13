@@ -1,0 +1,5 @@
+"0","land_NLD <- crop_shape(land, NLD_muni, polygon = T)
+"
+"2","Error in crop_shape(land, NLD_muni, polygon = T) : 
+  Rasterized method not implemented yet
+"

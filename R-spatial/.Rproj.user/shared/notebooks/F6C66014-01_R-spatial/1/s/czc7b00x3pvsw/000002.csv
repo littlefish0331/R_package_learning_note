@@ -1,0 +1,6 @@
+"0","philly_sel_sf <- philly_sf[philly_buf_intersects[[1]], ]"
+"0",""
+"0","# plot"
+"0","plot(st_geometry(philly_sf), "
+"0","     border = ""#aaaaaa"", #灰色"
+"0","     main = ""Census tracts that fall within 2km of city center"")"
